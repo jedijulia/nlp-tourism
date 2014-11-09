@@ -37,3 +37,14 @@ print 'test set size: ' + str(len(test_set))
 classifier = NaiveBayesClassifier.train(training_set)
 
 print classify.accuracy(classifier, test_set)
+
+errors = []
+print len(datamixed[size:])
+ctr = 0
+for(tweet, label) in datamixed[size:]:
+    guess = classifier.classify(feature_extractor(tweet))
+    if guess != label:
+        errors.append((label, guess, tweet))
+
+for (label, guess, tweet) in sorted(errors):
+  print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
