@@ -2,8 +2,11 @@
 import random
 
 from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatizer
+from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.corpus import stopwords
 
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 
 def feature_extractor(data):
     data = data.decode('utf-8')
@@ -48,12 +51,12 @@ print 'test set size: ' + str(len(test_set))
 
 # classify
 classifier = NaiveBayesClassifier.train(training_set)
+classifier_lr = SklearnClassifier(LogisticRegression()).train(training_set)
+classifier_svm = SklearnClassifier(LinearSVC()).train(training_set)
 print classify.accuracy(classifier, test_set)
 
 # show errors
 errors = []
-print len(datamixed[size:])
-ctr = 0
 for(tweet, label) in datamixed[size:]:
     guess = classifier.classify(feature_extractor(tweet))
     if guess != label:
