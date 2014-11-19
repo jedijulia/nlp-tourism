@@ -5,7 +5,11 @@ from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatize
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.corpus import stopwords
 
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
 def feature_extractor(data):
@@ -18,7 +22,11 @@ def feature_extractor(data):
 
     for word in words:
         if word not in stop_words:
-            features[word] = True
+            if word in features:
+                features[word] += 1
+            else:
+                features[word] = 1
+            # features[word] = True
 
     return features
 
@@ -49,18 +57,27 @@ size = data_set[3]
 print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
 
+# pipeline
+pipeline = Pipeline([('tfidf', TfidfTransformer()),
+                     ('nb', MultinomialNB())])
+
+classifier = SklearnClassifier(pipeline).train(training_set)
+
 # classify
-classifier = NaiveBayesClassifier.train(training_set)
+classifier_nb = NaiveBayesClassifier.train(training_set)
 classifier_lr = SklearnClassifier(LogisticRegression()).train(training_set)
 classifier_svm = SklearnClassifier(LinearSVC()).train(training_set)
 print classify.accuracy(classifier, test_set)
 
 # show errors
 errors = []
+ctr = 0
 for(tweet, label) in datamixed[size:]:
     guess = classifier.classify(feature_extractor(tweet))
     if guess != label:
         errors.append((label, guess, tweet))
-
+    else:
+        ctr += 1 
+print 'number correct: ' + str(ctr)
 for (label, guess, tweet) in sorted(errors):
   print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
