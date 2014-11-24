@@ -69,6 +69,14 @@ classifier_lr = SklearnClassifier(LogisticRegression()).train(training_set)
 classifier_svm = SklearnClassifier(LinearSVC()).train(training_set)
 print classify.accuracy(classifier, test_set)
 
+# 10-fold cross validation
+k_fold = cross_validation.KFold(len(feature_set), n_folds=10)
+for train_indices, test_indices in k_fold:
+    train = itemgetter(*train_indices)(feature_set)
+    test = itemgetter(*test_indices)(feature_set)
+    classifier = NaiveBayesClassifier.train(train)
+    print 'Accuracy: ' + str(classify.accuracy(classifier, test))
+
 # show errors
 errors = []
 ctr = 0
