@@ -70,12 +70,22 @@ classifier_svm = SklearnClassifier(LinearSVC()).train(training_set)
 print classify.accuracy(classifier, test_set)
 
 # 10-fold cross validation
-k_fold = cross_validation.KFold(len(feature_set), n_folds=10)
+best_accuracy = 0.0
+best_classifier = None
+k_fold = cross_validation.KFold(len(training_set), n_folds=10)
 for train_indices, test_indices in k_fold:
-    train = itemgetter(*train_indices)(feature_set)
-    test = itemgetter(*test_indices)(feature_set)
+    train = itemgetter(*train_indices)(training_set)
+    test = itemgetter(*test_indices)(training_set)
     classifier = NaiveBayesClassifier.train(train)
-    print 'Accuracy: ' + str(classify.accuracy(classifier, test))
+    print '--------------------------------'
+    print 'Training set accuracy:' + str(classify.accuracy(classifier, train))
+    accuracy = classify.accuracy(classifier, test)
+    if accuracy > best_accuracy:
+        best_classifier = classifier
+        best_accuracy = accuracy
+    print 'Cross validation set accuracy: ' + str(accuracy)
+    get_fscore(classifier, test)
+print 'Best classifier accuracy: ' + str(classify.accuracy(best_classifier, test_set))
 
 # show errors
 errors = []
