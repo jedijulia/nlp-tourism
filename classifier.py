@@ -145,6 +145,27 @@ pipeline = Pipeline([('tfidf', TfidfTransformer()),
 classifier_multinb = SklearnClassifier(pipeline)
 classifier_logreg = LogReg
 
+data_size = 20
+data_sizes = []
+accuracies = []
+train_accuracies = []
+while data_size <= 600:
+    curr_data_set = feature_set[:data_size]
+    curr_size = int(len(curr_data_set) * 0.8)
+    train = curr_data_set[:curr_size]
+    test = curr_data_set[curr_size:]
+    accuracy = cross_validate(classifier_nb, train, test)
+    data_sizes.append(data_size)
+    accuracies.append(accuracy[0])
+    train_accuracies.append(accuracy[1])
+    data_size += 10
+
+plt.plot(data_sizes, accuracies)
+plt.plot(data_sizes, train_accuracies)
+plt.xlabel('Dataset Size')
+plt.ylabel('Accuracy')
+plt.show()
+
 # show errors
 # errors = []
 # ctr = 0
