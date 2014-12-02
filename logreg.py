@@ -78,3 +78,17 @@ class LogReg:
             new_thetas = sparse.csr_matrix(np.array(new_thetas)).transpose()
             self.thetas = new_thetas
             print 'COST: ' + str(self.compute_cost(X, y))
+
+    def classify(self, feature_set):
+        to_classify = self.vectorizer.transform(feature_set).transpose()
+        result = self.sigmoid(to_classify)
+        if result >= 0.5:
+            return 'tourism'
+        else:
+            return 'nontourism'
+
+    def classify_many(self, feature_sets):
+        classifications = []
+        for feature_set in feature_sets:
+            classifications.append(self.classify(feature_set))
+        return classifications
