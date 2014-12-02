@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+from operator import itemgetter
 import random
+
+from logreg import LogReg
 
 from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatizer
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.corpus import stopwords
 
+import numpy as np
+
+from sklearn import cross_validation
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.linear_model import LogisticRegression
@@ -26,7 +32,6 @@ def feature_extractor(data):
                 features[word] += 1
             else:
                 features[word] = 1
-            # features[word] = True
 
     return features
 
@@ -36,11 +41,11 @@ def process_data(tourism_file, nontourism_file):
     random.shuffle(datamixed)
 
     feature_set = [(feature_extractor(tweet), label) for (tweet, label) in datamixed]
-    size = int(len(feature_set) * 0.7)
+    size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
 
-    return [training_set, test_set, datamixed, size]
+    return [training_set, test_set, datamixed, size, feature_set]
 
 def get_fscore(classifier, data):
     true_positives = 0
@@ -61,7 +66,10 @@ def get_fscore(classifier, data):
 
     precision = (true_positives * 1.0) / (true_positives + false_positives)
     recall = (true_positives * 1.0) / (true_positives + false_negatives)
-    fscore = 2 * (precision * recall) / (precision + recall)
+    if (precision + recall) != 0:
+        fscore = 2 * (precision * recall) / (precision + recall)
+    else:
+        fscore = 0
     print 'Precision: ' + str(precision)
     print 'Recall: ' + str(recall)
     print 'F-score: ' + str(fscore)
@@ -78,32 +86,43 @@ training_set = data_set[0]
 test_set = data_set[1]
 datamixed = data_set[2]
 size = data_set[3]
+feature_set = data_set[4]
 
 print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
 
-# pipeline
+# classifiers
+
+classifier_nb = NaiveBayesClassifier
+classifier_lr = SklearnClassifier(LogisticRegression())
+classifier_svm = SklearnClassifier(LinearSVC())
 pipeline = Pipeline([('tfidf', TfidfTransformer()),
                      ('nb', MultinomialNB())])
+classifier_multinb = SklearnClassifier(pipeline)
+classifier_logreg = LogReg
 
-classifier = SklearnClassifier(pipeline).train(training_set)
-
-# classify
-classifier_nb = NaiveBayesClassifier.train(training_set)
-classifier_lr = SklearnClassifier(LogisticRegression()).train(training_set)
-classifier_svm = SklearnClassifier(LinearSVC()).train(training_set)
-print classify.accuracy(classifier, test_set)
 
 # 10-fold cross validation
+chosen_classif = classifier_lr
+if chosen_classif == classifier_logreg:
+    is_logreg = True 
+else:
+    is_logreg = False
 best_accuracy = 0.0
 best_classifier = None
 k_fold = cross_validation.KFold(len(training_set), n_folds=10)
 for train_indices, test_indices in k_fold:
+    if is_logreg:
+        chosen_classif = classifier_logreg()
     train = itemgetter(*train_indices)(training_set)
     test = itemgetter(*test_indices)(training_set)
-    classifier = NaiveBayesClassifier.train(train)
+    if is_logreg:
+        chosen_classif.train(train)
+        classifier = chosen_classif
+    else:
+        classifier = chosen_classif.train(train)
     print '--------------------------------'
-    print 'Training set accuracy:' + str(classify.accuracy(classifier, train))
+    print 'training set accuracy:' + str(classify.accuracy(classifier, train))
     accuracy = classify.accuracy(classifier, test)
     if accuracy > best_accuracy:
         best_classifier = classifier
@@ -113,14 +132,14 @@ for train_indices, test_indices in k_fold:
 print 'Best classifier accuracy: ' + str(classify.accuracy(best_classifier, test_set))
 
 # show errors
-errors = []
-ctr = 0
-for(tweet, label) in datamixed[size:]:
-    guess = classifier.classify(feature_extractor(tweet))
-    if guess != label:
-        errors.append((label, guess, tweet))
-    else:
-        ctr += 1 
-print 'number correct: ' + str(ctr)
-for (label, guess, tweet) in sorted(errors):
-  print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
+# errors = []
+# ctr = 0
+# for(tweet, label) in datamixed[size:]:
+#     guess = classifier.classify(feature_extractor(tweet))
+#     if guess != label:
+#         errors.append((label, guess, tweet))
+#     else:
+#         ctr += 1 
+# print 'number correct: ' + str(ctr)
+# for (label, guess, tweet) in sorted(errors):
+#   print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
