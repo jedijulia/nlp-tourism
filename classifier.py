@@ -4,6 +4,8 @@ import random
 
 from logreg import LogReg
 
+import matplotlib.pyplot as plt
+
 from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatizer
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.corpus import stopwords
@@ -64,16 +66,59 @@ def get_fscore(classifier, data):
         else:
             false_negatives += 1
 
-    precision = (true_positives * 1.0) / (true_positives + false_positives)
-    recall = (true_positives * 1.0) / (true_positives + false_negatives)
+    precision = 0
+    recall = 0
+    fscore = 0
+
+    if (true_positives + false_positives) != 0:
+        precision = (true_positives * 1.0) / (true_positives + false_positives)
+    if (true_positives + false_negatives) != 0:
+        recall = (true_positives * 1.0) / (true_positives + false_negatives)
     if (precision + recall) != 0:
         fscore = 2 * (precision * recall) / (precision + recall)
-    else:
-        fscore = 0
+
     print 'Precision: ' + str(precision)
     print 'Recall: ' + str(recall)
     print 'F-score: ' + str(fscore)
     return fscore
+
+
+# 10-fold cross validation
+def cross_validate(classifier, training_set, test_set):
+    chosen_classif = classifier
+    if chosen_classif == classifier_logreg:
+        is_logreg = True 
+    else:
+        is_logreg = False
+    best_accuracy = 0.0
+    best_train_accuracy = None
+    best_classifier = None
+    k_fold = cross_validation.KFold(len(training_set), n_folds=10)
+    for train_indices, test_indices in k_fold:
+        if is_logreg:
+            chosen_classif = classifier_logreg()
+        train = itemgetter(*train_indices)(training_set)
+        test = itemgetter(*test_indices)(training_set)
+        if is_logreg:
+            chosen_classif.train(train)
+            classifier = chosen_classif
+        else:
+            classifier = chosen_classif.train(train)
+        print '--------------------------------'
+        train_accuracy = classify.accuracy(classifier, train)
+        print 'training set accuracy:' + str(train_accuracy)
+        if len(test_indices) == 1:
+            test = (test,)
+        accuracy = classify.accuracy(classifier, test)
+        if accuracy > best_accuracy:
+            best_classifier = classifier
+            best_accuracy = accuracy
+            best_train_accuracy = train_accuracy
+        print 'Cross validation set accuracy: ' + str(accuracy)
+        get_fscore(classifier, test)
+    best_accuracy = classify.accuracy(best_classifier, test_set)
+    print 'Best classifier accuracy: ' + str(best_accuracy)
+    return [best_accuracy, best_train_accuracy]
 
 
 # get data from files
@@ -92,7 +137,6 @@ print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
 
 # classifiers
-
 classifier_nb = NaiveBayesClassifier
 classifier_lr = SklearnClassifier(LogisticRegression())
 classifier_svm = SklearnClassifier(LinearSVC())
@@ -100,36 +144,6 @@ pipeline = Pipeline([('tfidf', TfidfTransformer()),
                      ('nb', MultinomialNB())])
 classifier_multinb = SklearnClassifier(pipeline)
 classifier_logreg = LogReg
-
-
-# 10-fold cross validation
-chosen_classif = classifier_lr
-if chosen_classif == classifier_logreg:
-    is_logreg = True 
-else:
-    is_logreg = False
-best_accuracy = 0.0
-best_classifier = None
-k_fold = cross_validation.KFold(len(training_set), n_folds=10)
-for train_indices, test_indices in k_fold:
-    if is_logreg:
-        chosen_classif = classifier_logreg()
-    train = itemgetter(*train_indices)(training_set)
-    test = itemgetter(*test_indices)(training_set)
-    if is_logreg:
-        chosen_classif.train(train)
-        classifier = chosen_classif
-    else:
-        classifier = chosen_classif.train(train)
-    print '--------------------------------'
-    print 'training set accuracy:' + str(classify.accuracy(classifier, train))
-    accuracy = classify.accuracy(classifier, test)
-    if accuracy > best_accuracy:
-        best_classifier = classifier
-        best_accuracy = accuracy
-    print 'Cross validation set accuracy: ' + str(accuracy)
-    get_fscore(classifier, test)
-print 'Best classifier accuracy: ' + str(classify.accuracy(best_classifier, test_set))
 
 # show errors
 # errors = []
