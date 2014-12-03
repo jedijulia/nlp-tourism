@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from operator import itemgetter
 import random
+import re
 
 from logreg import LogReg
 
@@ -38,14 +39,16 @@ def feature_extractor(data):
     return features
 
 def process_data(tourism_file, nontourism_file):
-    datamixed = [(tweet, 'tourism') for tweet in tourism_file]
-    datamixed += [(tweet, 'nontourism') for tweet in nontourism_file]
+    datamixed = [(re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet), 'tourism') for tweet in tourism_file]
+    datamixed += [(re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet), 'nontourism') for tweet in nontourism_file]
     random.shuffle(datamixed)
 
     feature_set = [(feature_extractor(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
+
+    print datamixed[size:]
 
     return [training_set, test_set, datamixed, size, feature_set]
 
@@ -154,7 +157,7 @@ while data_size <= 600:
     curr_size = int(len(curr_data_set) * 0.8)
     train = curr_data_set[:curr_size]
     test = curr_data_set[curr_size:]
-    accuracy = cross_validate(classifier_nb, train, test)
+    accuracy = cross_validate(classifier_logreg, train, test)
     data_sizes.append(data_size)
     accuracies.append(accuracy[0])
     train_accuracies.append(accuracy[1])
