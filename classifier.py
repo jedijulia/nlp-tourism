@@ -47,9 +47,6 @@ def process_data(tourism_file, nontourism_file):
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
-
-    print datamixed[size:]
-
     return [training_set, test_set, datamixed, size, feature_set]
 
 def get_fscore(classifier, data):
@@ -109,7 +106,7 @@ def cross_validate(classifier, training_set, test_set):
             classifier = chosen_classif.train(train)
         print '--------------------------------'
         train_accuracy = classify.accuracy(classifier, train)
-        print 'training set accuracy:' + str(train_accuracy)
+        print 'Training set accuracy:' + str(train_accuracy)
         if len(test_indices) == 1:
             test = (test,)
         accuracy = classify.accuracy(classifier, test)
@@ -119,9 +116,10 @@ def cross_validate(classifier, training_set, test_set):
             best_train_accuracy = train_accuracy
         print 'Cross validation set accuracy: ' + str(accuracy)
         get_fscore(classifier, test)
-    best_accuracy = classify.accuracy(best_classifier, test_set)
-    print 'Best classifier accuracy: ' + str(best_accuracy)
-    return [best_accuracy, best_train_accuracy]
+    print 'Best classifier CV accuracy: ' + str(best_accuracy)
+    test_accuracy = classify.accuracy(best_classifier, test_set)
+    print 'Best classifier accuracy: ' + str(test_accuracy)
+    return [test_accuracy, best_train_accuracy, best_classifier]
 
 
 # get data from files
@@ -148,6 +146,7 @@ pipeline = Pipeline([('tfidf', TfidfTransformer()),
 classifier_multinb = SklearnClassifier(pipeline)
 classifier_logreg = LogReg
 
+# plot curves
 data_size = 20
 data_sizes = []
 accuracies = []
@@ -157,17 +156,22 @@ while data_size <= 600:
     curr_size = int(len(curr_data_set) * 0.8)
     train = curr_data_set[:curr_size]
     test = curr_data_set[curr_size:]
-    accuracy = cross_validate(classifier_logreg, train, test)
+    accuracy = cross_validate(classifier_svm, train, test)
     data_sizes.append(data_size)
     accuracies.append(accuracy[0])
     train_accuracies.append(accuracy[1])
-    data_size += 10
+    data_size += 50
 
 plt.plot(data_sizes, accuracies)
 plt.plot(data_sizes, train_accuracies)
 plt.xlabel('Dataset Size')
 plt.ylabel('Accuracy')
 plt.show()
+
+# # test individual
+# result = cross_validate(classifier_nb, training_set, test_set)
+# classifier = result[2]
+# print classifier.vocabulary
 
 # show errors
 # errors = []
