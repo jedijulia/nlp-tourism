@@ -54,6 +54,32 @@ def feature_extractor_top_words(data):
 
     return features
 
+def feature_extractor_top_words_weights(data):
+    data = data.decode('utf-8')
+    top_words = ['travel', 'vacation', 'city', 'itsmorefuninthephilippines', 'travel',
+                 'boracay', 'philippine', 'view', 'day', 'beach', 'morning', 'resort', 
+                 'good', 'cebu', 'island']
+    features = {}
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    words = [lemmatizer.lemmatize(word.lower()) for word in word_tokenize(data)]
+
+    for word in words:
+        if word not in stop_words:
+            if word in features:
+                if word in top_words:
+                    features[word] += 1.5
+                else:
+                    features[word] += 1
+            else:
+                if word in top_words:
+                    features[word] = 1.5
+                else:
+                    features[word] = 1
+
+    return features
+
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
     clean = re.sub(r'#', '', clean)
@@ -67,7 +93,7 @@ def process_data(tourism_file, nontourism_file):
     datamixed += [(clean(tweet), 'nontourism') for tweet in nontourism_file]
     random.shuffle(datamixed)
 
-    feature_set = [(feature_extractor(tweet), label) for (tweet, label) in datamixed]
+    feature_set = [(feature_extractor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
@@ -170,42 +196,43 @@ pipeline = Pipeline([('tfidf', TfidfTransformer()),
 classifier_multinb = SklearnClassifier(pipeline)
 classifier_logreg = LogReg
 
-# plot curves
-data_size = 20
-data_sizes = []
-accuracies = []
-train_accuracies = []
-while data_size <= 600:
-    curr_data_set = feature_set[:data_size]
-    curr_size = int(len(curr_data_set) * 0.8)
-    train = curr_data_set[:curr_size]
-    test = curr_data_set[curr_size:]
-    accuracy = cross_validate(classifier_svm, train, test)
-    data_sizes.append(data_size)
-    accuracies.append(accuracy[0])
-    train_accuracies.append(accuracy[1])
-    data_size += 50
+# # plot curves
+# data_size = 20
+# data_sizes = []
+# accuracies = []
+# train_accuracies = []
+# while data_size <= 600:
+#     curr_data_set = feature_set[:data_size]
+#     curr_size = int(len(curr_data_set) * 0.8)
+#     train = curr_data_set[:curr_size]
+#     test = curr_data_set[curr_size:]
+#     accuracy = cross_validate(classifier_svm, train, test)
+#     data_sizes.append(data_size)
+#     accuracies.append(accuracy[0])
+#     train_accuracies.append(accuracy[1])
+#     data_size += 50
 
-plt.plot(data_sizes, accuracies)
-plt.plot(data_sizes, train_accuracies)
-plt.xlabel('Dataset Size')
-plt.ylabel('Accuracy')
-plt.show()
+# plt.plot(data_sizes, accuracies)
+# plt.plot(data_sizes, train_accuracies)
+# plt.xlabel('Dataset Size')
+# plt.ylabel('Accuracy')
+# plt.show()
 
-# # test individual
-# result = cross_validate(classifier_nb, training_set, test_set)
-# classifier = result[2]
-# print classifier.vocabulary
+# test individual
+result = cross_validate(classifier_lr, training_set, test_set)
+classifier = result[2]
+# print classifier.vectorizer.vocabulary_
+# classifier.show_most_informative_features()
 
 # show errors
-# errors = []
-# ctr = 0
-# for(tweet, label) in datamixed[size:]:
-#     guess = classifier.classify(feature_extractor(tweet))
-#     if guess != label:
-#         errors.append((label, guess, tweet))
-#     else:
-#         ctr += 1 
-# print 'number correct: ' + str(ctr)
-# for (label, guess, tweet) in sorted(errors):
-#   print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
+errors = []
+ctr = 0
+for(tweet, label) in datamixed[size:]:
+    guess = classifier.classify(feature_extractor_top_words_weights(tweet))
+    if guess != label:
+        errors.append((label, guess, tweet))
+    else:
+        ctr += 1
+print 'number correct: ' + str(ctr)
+for (label, guess, tweet) in sorted(errors):
+  print('correct=%-8s guess=%-8s name=%-30s' % (label, guess, tweet))
