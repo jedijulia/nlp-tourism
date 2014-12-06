@@ -38,6 +38,22 @@ def feature_extractor(data):
 
     return features
 
+def feature_extractor_top_words(data):
+    data = data.decode('utf-8')
+    top_words = ['travel', 'vacation', 'city', 'itsmorefuninthephilippines', 'travel',
+                 'boracay', 'philippine', 'view', 'day', 'beach', 'morning', 'resort', 
+                 'good', 'cebu', 'island']
+    features = {word: 0 for word in top_words}
+    lemmatizer = WordNetLemmatizer()
+
+    words = [lemmatizer.lemmatize(word.lower()) for word in word_tokenize(data)]
+
+    for word in words:
+        if word in features:
+            features[word] += 1
+
+    return features
+
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
     clean = re.sub(r'#', '', clean)
