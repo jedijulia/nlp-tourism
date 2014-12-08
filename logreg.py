@@ -21,7 +21,7 @@ class LogReg:
         X = self.vectorizer.fit_transform(X)
         y = self.encoder.fit_transform(y)
 
-        if not self.thetas:
+        if self.thetas == None:
             self.thetas = sparse.rand(X.shape[1], 1, 1, 'csr')
 
         cost = self.compute_cost(X, y)
@@ -77,7 +77,7 @@ class LogReg:
                 new_thetas.append(theta)
             new_thetas = sparse.csr_matrix(np.array(new_thetas)).transpose()
             self.thetas = new_thetas
-            print 'COST: ' + str(self.compute_cost(X, y))
+            # print 'CURRENT COST: ' + str(self.compute_cost(X, y))
 
     def classify(self, feature_set):
         to_classify = self.vectorizer.transform(feature_set).transpose()
@@ -92,3 +92,15 @@ class LogReg:
         for feature_set in feature_sets:
             classifications.append(self.classify(feature_set))
         return classifications
+
+    def accuracy(self, feature_sets):
+        X, y = list(compat.izip(*feature_sets))
+        classifications = self.classify_many(X)
+        count = 0
+        print 'Y LENGTH: ' + str(len(y))
+        print 'CLASSIFICATIONS LENGTH: ' + str(len(classifications))
+        for i in range(0, len(classifications)):
+            if classifications[i] == y[i]:
+                count += 1
+        accuracy = (count * 1.0) / len(y)
+        return accuracy
