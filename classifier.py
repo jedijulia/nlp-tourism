@@ -169,6 +169,7 @@ def cross_validate(classifier, training_set, test_set):
     print 'Best classifier CV accuracy: ' + str(best_accuracy)
     test_accuracy = classify.accuracy(best_classifier, test_set)
     print 'Best classifier accuracy: ' + str(test_accuracy)
+    print get_fscore(best_classifier, test_set)
     return [test_accuracy, best_train_accuracy, best_classifier]
 
 
