@@ -191,9 +191,6 @@ print 'test set size: ' + str(len(test_set))
 classifier_nb = NaiveBayesClassifier
 classifier_lr = SklearnClassifier(LogisticRegression())
 classifier_svm = SklearnClassifier(LinearSVC())
-pipeline = Pipeline([('tfidf', TfidfTransformer()),
-                     ('nb', MultinomialNB())])
-classifier_multinb = SklearnClassifier(pipeline)
 classifier_logreg = LogReg
 
 # # plot curves
