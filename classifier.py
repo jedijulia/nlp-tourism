@@ -14,10 +14,7 @@ from nltk.corpus import stopwords
 import numpy as np
 
 from sklearn import cross_validation
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
 def feature_extractor(data):
