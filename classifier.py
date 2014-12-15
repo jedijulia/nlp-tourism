@@ -215,8 +215,6 @@ classifier_logreg = LogReg
 # test individual
 result = cross_validate(classifier_lr, training_set, test_set)
 classifier = result[2]
-# print classifier.vectorizer.vocabulary_
-# classifier.show_most_informative_features()
 
 # show errors
 errors = []
