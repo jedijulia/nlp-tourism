@@ -191,6 +191,7 @@ classifier_lr = SklearnClassifier(LogisticRegression())
 classifier_svm = SklearnClassifier(LinearSVC())
 classifier_logreg = LogReg
 
+<<<<<<< HEAD
 # plot curves
 data_size = 20
 data_sizes = []
