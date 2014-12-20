@@ -6,3 +6,4 @@ identification and sentiment analysis of tourism-related tweets from the Philipp
 
 - Logistic Regression Classifier
 - Naive Bayes Classifier
+- Support Vector Machines
