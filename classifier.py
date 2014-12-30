@@ -227,4 +227,4 @@ plt.show()
 #     else:
 #         ctr += 1
 # for (label, guess, tweet) in sorted(errors):
-#   print('correct label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
+#   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
