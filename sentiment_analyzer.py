@@ -26,11 +26,11 @@ def get_fscore(classifier, data):
     
     for(tweet, label) in data:
         guess = classifier.classify(tweet)
-        if guess == 'tourism' and label == 'tourism':
+        if guess == 'positive' and label == 'positive':
             true_positives += 1
-        elif guess == 'tourism' and label == 'nontourism':
+        elif guess == 'positive' and label == 'negative':
             false_positives += 1
-        elif guess == 'nontourism' and label == 'nontourism':
+        elif guess == 'negative' and label == 'negative':
             true_negatives += 1
         else:
             false_negatives += 1
