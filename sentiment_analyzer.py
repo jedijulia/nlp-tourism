@@ -53,7 +53,7 @@ def get_fscore(classifier, data):
     print 'Precision: ' + str(precision)
     print 'Recall: ' + str(recall)
     print 'F-score: ' + str(fscore)
-    return [fscore, precision, recall]
+    return fscore
 
 # 10-fold cross validation
 def cross_validate(classifier, training_set, test_set):
