@@ -20,7 +20,7 @@ def process_data(positive_file, negative_file):
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
-    return [training_set, test_set, datamixed, size, feature_set]
+    return [training_set, test_set, feature_set, datamixed]
 
 def get_fscore(classifier, data):
     true_positives = 0
