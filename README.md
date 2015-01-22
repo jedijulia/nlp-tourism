@@ -4,6 +4,6 @@ identification and sentiment analysis of tourism-related tweets from the Philipp
 
 #####Classifiers used for tourism-related tweet identification:
 
-- Logistic Regression Classifier
-- Naive Bayes Classifier
+- Logistic Regression
+- Naive Bayes
 - Support Vector Machines (linear kernel)
