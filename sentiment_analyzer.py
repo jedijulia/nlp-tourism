@@ -94,3 +94,7 @@ def cross_validate(classifier, training_set, test_set):
     print 'Best classifier precision recall fscore: '
     print get_fscore(best_classifier, test_set)
     return [test_accuracy, best_train_accuracy, best_classifier]
+
+# get data from files
+tourism_file = open('positive.txt', 'r')
+nontourism_file = open('negative.txt', 'r')
