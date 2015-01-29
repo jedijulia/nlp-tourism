@@ -98,3 +98,11 @@ def cross_validate(classifier, training_set, test_set):
 # get data from files
 tourism_file = open('positive.txt', 'r')
 nontourism_file = open('negative.txt', 'r')
+
+# retrieve features
+data_set = process_data(tourism_file, nontourism_file)
+training_set = data_set[0]
+test_set = data_set[1]
+datamixed = data_set[2]
+size = data_set[3]
+feature_set = data_set[4]
