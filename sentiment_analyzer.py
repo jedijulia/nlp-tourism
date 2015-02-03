@@ -104,6 +104,7 @@ data_set = process_data(tourism_file, nontourism_file)
 feature_set = data_set[0]
 training_set = data_set[1]
 test_set = data_set[2]
+datamixed = data_set[3]
 
 print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
