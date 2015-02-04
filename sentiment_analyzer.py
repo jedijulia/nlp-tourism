@@ -105,6 +105,7 @@ feature_set = data_set[0]
 training_set = data_set[1]
 test_set = data_set[2]
 datamixed = data_set[3]
+size = data_set[4]
 
 print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
