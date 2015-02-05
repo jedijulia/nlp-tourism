@@ -109,3 +109,6 @@ size = data_set[4]
 
 print 'training set size: ' + str(len(training_set))
 print 'test set size: ' + str(len(test_set))
+
+# classifiers
+classifier_nb = NaiveBayesClassifier
