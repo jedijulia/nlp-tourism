@@ -4,6 +4,7 @@ import random
 import re
 
 from nltk.corpus import stopwords
+from nltk import classify, NaiveBayesClassifier
 
 from sklearn import cross_validation
 
