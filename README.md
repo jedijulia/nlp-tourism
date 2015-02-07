@@ -6,4 +6,4 @@ identification and sentiment analysis of tourism-related tweets from the Philipp
 
 - Logistic Regression
 - Naive Bayes
-- Support Vector Machines (linear kernel)
+- Support Vector Machines (using linear kernel)
