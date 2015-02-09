@@ -5,6 +5,7 @@ import re
 
 from nltk.corpus import stopwords
 from nltk import classify, NaiveBayesClassifier
+from nltk.classify.scikitlearn import SklearnClassifier
 
 from sklearn import cross_validation
 
