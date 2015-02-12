@@ -115,3 +115,4 @@ print 'test set size: ' + str(len(test_set))
 # classifiers
 classifier_nb = NaiveBayesClassifier
 classifier_lr = SklearnClassifier(LogisticRegression())
+classifier_svm = SklearnClassifier(LinearSVC())
