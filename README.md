@@ -6,4 +6,4 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 
 - Logistic Regression
 - Naive Bayes
-- SVM (using linear kernel)
+- Suppor Vector Machines (using linear kernel)
