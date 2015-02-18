@@ -16,11 +16,12 @@ for item in items:
     contents.extend(' '.join(item['content']).split(' '))
 
 for word in contents:
+	word = word.lower()
 	if word not in stop_words and word not in symbols:
-		words.append(word.lower())
+		words.append(word)
 
 fdist = FreqDist(words)
-top_words = fdist.most_common(100)
+top_words = fdist.most_common(102)
 for word in top_words:
 	print word[0]
 
