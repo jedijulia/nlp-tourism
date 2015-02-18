@@ -76,6 +76,40 @@ def feature_extractor_top_words_weights(data):
 
     return features
 
+def feature_extractor_tripadvisor_top_words_weights(data):
+    data = data.decode('utf-8')
+
+    top_file = open('scraper/top_words.txt', 'r')
+    top_words = [word.replace('\n', '') for word in top_file]
+    places_file = open('scraper/places.txt', 'r')
+
+    for place in places_file:
+        place = place.replace('\n', '')
+        for word in place.split(' '):
+            if word != '-':
+                top_words.append(word)
+
+    features = {}
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    words = [lemmatizer.lemmatize(word.lower()) for word in word_tokenize(data)]
+
+    for word in words:
+        if word not in stop_words:
+            if word in features:
+                if word in top_words:
+                    features[word] += 1.5
+                else:
+                    features[word] += 1
+            else:
+                if word in top_words:
+                    features[word] = 1.5
+                else:
+                    features[word] = 1
+
+    return features
+
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
     clean = re.sub(r'#', '', clean)
