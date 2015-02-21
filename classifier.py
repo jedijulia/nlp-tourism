@@ -123,7 +123,7 @@ def process_data(tourism_file, nontourism_file):
     datamixed += [(clean(tweet), 'nontourism') for tweet in nontourism_file]
     random.shuffle(datamixed)
 
-    feature_set = [(feature_extractor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
+    feature_set = [(feature_extractor_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
@@ -248,14 +248,14 @@ plt.ylabel('Accuracy')
 plt.show()
 
 # # test individual
-# result = cross_validate(classifier_lr, training_set, test_set) # need to set classifier here, currently lr
+# result = cross_validate(classifier_svm, training_set, test_set) # need to set classifier here, currently lr
 # classifier = result[2]
 
 # # show errors
 # errors = []
 # ctr = 0
 # for(tweet, label) in datamixed[size:]:
-#     guess = classifier.classify(feature_extractor_top_words_weights(tweet))
+#     guess = classifier.classify(feature_extractor_tripadvisor_top_words_weights(tweet))
 #     if guess != label:
 #         errors.append((label, guess, tweet))
 #     else:
