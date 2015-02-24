@@ -1,13 +1,29 @@
 #!/usr/bin/env python
+import itertools
 from operator import itemgetter
 import random
 import re
 
+from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatizer
+from nltk.collocations import BigramCollocationFinder
 from nltk.corpus import stopwords
-from nltk import classify, NaiveBayesClassifier
 from nltk.classify.scikitlearn import SklearnClassifier
+from nltk.metrics import BigramAssocMeasures
 
 from sklearn import cross_validation
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.svm import LinearSVC
+
+def feature_extractor(data):
+    data = data.decode('utf-8')
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    bigram_vectorizer = CountVectorizer(ngram_range=(1, 2),token_pattern=r'\b\w+\b', min_df=1)
+    analyze = bigram_vectorizer.build_analyzer()
+    bigrams = analyze(data)
+    features = { bigram:1 for bigram in bigrams }
+    return features
 
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
@@ -18,7 +34,7 @@ def process_data(positive_file, negative_file):
     datamixed += [(clean(tweet), 'negative') for tweet in negative_file]
     random.shuffle(datamixed)
 
-    feature_set = [(feature_extractor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
+    feature_set = [(feature_extractor(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
@@ -60,24 +76,14 @@ def get_fscore(classifier, data):
 # 10-fold cross validation
 def cross_validate(classifier, training_set, test_set):
     chosen_classif = classifier
-    if chosen_classif == classifier_logreg:
-        is_logreg = True 
-    else:
-        is_logreg = False
     best_accuracy = 0.0
     best_train_accuracy = None
     best_classifier = None
     k_fold = cross_validation.KFold(len(training_set), n_folds=10)
     for train_indices, test_indices in k_fold:
-        if is_logreg:
-            chosen_classif = classifier_logreg()
         train = itemgetter(*train_indices)(training_set)
         test = itemgetter(*test_indices)(training_set)
-        if is_logreg:
-            chosen_classif.train(train)
-            classifier = chosen_classif
-        else:
-            classifier = chosen_classif.train(train)
+        classifier = chosen_classif.train(train)
         print '--------------------------------'
         train_accuracy = classify.accuracy(classifier, train)
         print 'Training set accuracy:' + str(train_accuracy)
@@ -98,11 +104,11 @@ def cross_validate(classifier, training_set, test_set):
     return [test_accuracy, best_train_accuracy, best_classifier]
 
 # get data from files
-tourism_file = open('positive.txt', 'r')
-nontourism_file = open('negative.txt', 'r')
+positive_file = open('positive.txt', 'r')
+negative_file = open('negative.txt', 'r')
 
 # retrieve features
-data_set = process_data(tourism_file, nontourism_file)
+data_set = process_data(positive_file, negative_file)
 feature_set = data_set[0]
 training_set = data_set[1]
 test_set = data_set[2]
@@ -114,5 +120,20 @@ print 'test set size: ' + str(len(test_set))
 
 # classifiers
 classifier_nb = NaiveBayesClassifier
-classifier_lr = SklearnClassifier(LogisticRegression())
 classifier_svm = SklearnClassifier(LinearSVC())
+
+# test individual
+result = cross_validate(classifier_svm, training_set, test_set) # need to set classifier here, currently lr
+classifier = result[2]
+
+# # show errors
+# errors = []
+# ctr = 0
+# for(tweet, label) in datamixed[size:]:
+#     guess = classifier.classify(feature_extractor(tweet))
+#     if guess != label:
+#         errors.append((label, guess, tweet))
+#     else:
+#         ctr += 1
+# for (label, guess, tweet) in sorted(errors):
+#   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
