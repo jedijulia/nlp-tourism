@@ -7,7 +7,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - Logistic Regression
 - Naive Bayes
 - Suppor Vector Machines (using linear kernel)
-- 
-#####Classifiers used in sentimen analysis:
+
+#####Classifiers used in sentiment analysis:
 
 - Naive Bayes
