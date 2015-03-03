@@ -4,7 +4,7 @@ from operator import itemgetter
 import random
 import re
 
-from nltk import classify, NaiveBayesClassifier, word_tokenize, WordNetLemmatizer
+from nltk import classify, NaiveBayesClassifier, pos_tag, word_tokenize, WordNetLemmatizer
 from nltk.collocations import BigramCollocationFinder
 from nltk.corpus import stopwords
 from nltk.classify.scikitlearn import SklearnClassifier
@@ -25,8 +25,26 @@ def feature_extractor(data):
     features = { bigram:1 for bigram in bigrams }
     return features
 
+def feature_extractor_POS(data):
+    data = data.decode('utf-8')
+    features = {}
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    tags = pos_tag(word_tokenize(data))
+
+    for tag in tags:
+        if tag[1] in features:
+            features[tag[1]] += 1
+        else:
+            features[tag[1]] = 1
+
+    return features
+
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
+    clean = re.sub(r'\.\.\.', '', clean)
+    clean = re.sub(r',', '', clean)
     return clean
 
 def process_data(positive_file, negative_file):
@@ -123,7 +141,7 @@ classifier_nb = NaiveBayesClassifier
 classifier_svm = SklearnClassifier(LinearSVC())
 
 # test individual
-result = cross_validate(classifier_svm, training_set, test_set) # need to set classifier here, currently lr
+result = cross_validate(classifier_nb, training_set, test_set) # need to set classifier here, currently lr
 classifier = result[2]
 
 # # show errors
