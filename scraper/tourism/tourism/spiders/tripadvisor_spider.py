@@ -32,7 +32,8 @@ class TripAdvisor(scrapy.Spider):
     ]
 
     def parse(self, response):
-        item_urls = response.xpath("//div[@class='listing']//div[@class='quality easyClear']//a/@href").extract()
+        # item_urls = response.xpath("//div[@class='listing']//div[@class='quality easyClear']//a/@href").extract()
+        item_urls = response.xpath("//div[@class='entry']/div[@class='property_title']//a/@href").extract()
 
         for url in item_urls:
             item_url = urlparse.urljoin(response.url, url)
@@ -42,4 +43,5 @@ class TripAdvisor(scrapy.Spider):
         item = TourismItem()
         item['place'] = response.xpath("//h1[@id='HEADING']/text()").extract()
         item['content'] = response.xpath("//div[@class='reviewSelector ']//div[@class='quote ']//span[@class='noQuotes']/text()").extract()
+        item['details'] = response.xpath("//div[@class='reviewSelector ']//div[@class='entry']/p/text()").extract()
         yield item
