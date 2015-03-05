@@ -16,14 +16,14 @@ for item in items:
     contents.extend(' '.join(item['content']).split(' '))
 
 for word in contents:
-	word = word.lower()
-	if word not in stop_words and word not in symbols:
-		words.append(word)
+    word = word.lower()
+    if word not in stop_words and word not in symbols:
+        words.append(word)
 
 fdist = FreqDist(words)
 top_words = fdist.most_common(102)
 for word in top_words:
-	print word[0]
+    print word[0]
 
 # f = open('places.txt', 'w')
 # for place in places:
