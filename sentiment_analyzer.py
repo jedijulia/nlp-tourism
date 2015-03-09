@@ -19,9 +19,28 @@ def feature_extractor(data):
     lemmatizer = WordNetLemmatizer()
     stop_words = stopwords.words('english')
 
+    tokens = word_tokenize(data)
+    tokens_mod = []
+    i = 0
+    while i < len(tokens):
+        curr = tokens[i]
+        if curr == 'no' or curr == 'not':
+            if i - 1 >= 0:
+                tokens_mod[-1] = tokens_mod[-1] + '+' + curr
+            if i + 1 <= len(tokens) - 1:
+                tokens_mod.append(curr + '+' + tokens[i+1])
+                i += 1
+        else:
+            tokens_mod.append(curr)
+        i += 1
+
+    data_mod = ''
+    for token in tokens_mod:
+        data_mod += ' ' + token
+
     bigram_vectorizer = CountVectorizer(ngram_range=(1, 2),token_pattern=r'\b\w+\b', min_df=1)
     analyze = bigram_vectorizer.build_analyzer()
-    bigrams = analyze(data)
+    bigrams = analyze(data_mod)
     features = { bigram:1 for bigram in bigrams }
     return features
 
