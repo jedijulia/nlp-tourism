@@ -8,6 +8,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - Naive Bayes
 - Suppor Vector Machines
 
-#####Classifiers used in sentiment analysis:
+#####Classifiers and algorithms used in sentiment analysis:
 
 - Naive Bayes
+- LDA
