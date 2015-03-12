@@ -25,10 +25,10 @@ top_words = fdist.most_common(102)
 for word in top_words:
     print word[0]
 
-# f = open('places.txt', 'w')
-# for place in places:
-#     f.write(place + '\n')
-# f.close()
+f = open('places.txt', 'w')
+for place in places:
+    f.write(place + '\n')
+f.close()
 
 f = open('top_words.txt', 'w')
 for word in top_words:
