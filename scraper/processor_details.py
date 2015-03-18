@@ -33,6 +33,5 @@ for item in items:
 
 dictionary = corpora.Dictionary(texts)
 dictionary.save('tripadvisor.dict')
-print dictionary
 corpus = [dictionary.doc2bow(text) for text in texts]
 corpora.MmCorpus.serialize('tripadvisor.mm', corpus)
