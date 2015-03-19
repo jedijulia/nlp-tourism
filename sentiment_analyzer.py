@@ -5,7 +5,6 @@ import random
 import re
 
 from nltk import classify, NaiveBayesClassifier, pos_tag, word_tokenize, WordNetLemmatizer
-from nltk.collocations import BigramCollocationFinder
 from nltk.corpus import stopwords
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.metrics import BigramAssocMeasures
