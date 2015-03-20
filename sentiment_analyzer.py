@@ -7,7 +7,6 @@ import re
 from nltk import classify, NaiveBayesClassifier, pos_tag, word_tokenize, WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.classify.scikitlearn import SklearnClassifier
-from nltk.metrics import BigramAssocMeasures
 
 from sklearn import cross_validation
 from sklearn.feature_extraction.text import CountVectorizer
