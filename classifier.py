@@ -110,6 +110,33 @@ def feature_extractor_tripadvisor_top_words_weights(data):
 
     return features
 
+def feature_extractor_lda_tripadvisor_top_words_weights(data):
+    data = data.decode('utf-8')
+
+    top_file = open('scraper/top_words_lda.txt', 'r')
+    top_words = [word.replace('\n', '') for word in top_file]
+
+    features = {}
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    words = [lemmatizer.lemmatize(word.lower()) for word in word_tokenize(data)]
+
+    for word in words:
+        if word not in stop_words:
+            if word in features:
+                if word in top_words:
+                    features[word] += 1.5
+                else:
+                    features[word] += 1
+            else:
+                if word in top_words:
+                    features[word] = 1.5
+                else:
+                    features[word] = 1
+
+    return features
+
 def clean(tweet):
     clean = re.sub(r'https?:\/\/\w+(\.\w+)*(:\w+)?(/[A-Za-z0-9-_\.]*)* ?', '', tweet)
     clean = re.sub(r'#', '', clean)
@@ -123,7 +150,7 @@ def process_data(tourism_file, nontourism_file):
     datamixed += [(clean(tweet), 'nontourism') for tweet in nontourism_file]
     random.shuffle(datamixed)
 
-    feature_set = [(feature_extractor_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
+    feature_set = [(feature_extractor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
@@ -241,11 +268,11 @@ while data_size <= 600:
     train_accuracies.append(accuracy[1])
     data_size += 50
 
-plt.plot(data_sizes, accuracies)
-plt.plot(data_sizes, train_accuracies)
-plt.xlabel('Dataset Size')
-plt.ylabel('Accuracy')
-plt.show()
+# plt.plot(data_sizes, accuracies)
+# plt.plot(data_sizes, train_accuracies)
+# plt.xlabel('Dataset Size')
+# plt.ylabel('Accuracy')
+# plt.show()
 
 # # test individual
 # result = cross_validate(classifier_svm, training_set, test_set) # need to set classifier here, currently lr
