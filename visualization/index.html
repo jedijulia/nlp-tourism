@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>Leaflet Markercluster</title>
+    <meta name='viewport' content='initial-scale=1, maximum-scale=1, user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.css' rel='stylesheet' />
+    <style>
+        body { 
+            margin: 0;
+            padding:0; 
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css' rel='stylesheet' />
+
+    <script src="data/twitter_data.js"></script>
+
+    <div id='map'> </div>
+
+    <script>
+        L.mapbox.accessToken = 'pk.eyJ1IjoiamNtZW5jaGF2ZXoiLCJhIjoiM1NqakVJNCJ9.xrJj65p6RUBEYW7iu9NHxg';
+
+        var southWest = L.latLng(5.62, 116.87),
+            northEast = L.latLng(19.68, 128.44),
+            bounds = L.latLngBounds(southWest, northEast);
+
+        var map = L.mapbox.map('map', 'jcmenchavez.lmih4k88', {
+            maxBounds: bounds,
+            minZoom: 6
+        });
+
+        var iconPos = L.mapbox.marker.icon({
+            'marker-symbol': 'heart',
+        });
+        var iconNeg = L.mapbox.marker.icon({
+            'marker-symbol': 'star'
+        });
+
+        var markers = new L.MarkerClusterGroup();
+
+        for (var i = 0; i < tweets.length; i++) {
+            var curr = tweets[i];
+            var title = curr["text"];
+            var latitude = curr["coordinates"]["coordinates"][1];
+            var longitude = curr["coordinates"]["coordinates"][0];
+            var sentiment = curr["sentiment"];
+
+            if (sentiment === 'positive') {
+                var marker = L.marker(new L.LatLng(latitude, longitude), {
+                    icon: iconPos,
+                    title: title
+                });
+            } else {
+                var marker = L.marker(new L.LatLng(latitude, longitude), {
+                    icon: iconNeg,
+                    title: title
+                });
+            }
+
+            marker.bindPopup(title);
+            markers.addLayer(marker);
+        }
+        map.addLayer(markers);
+    </script>
+</body>
+</html>
