@@ -24,6 +24,9 @@
     <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
     <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css' rel='stylesheet' />
 
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+
     <script src="data/twitter_data.js"></script>
 
     <div id='map'> </div>
@@ -47,7 +50,36 @@
             'marker-symbol': 'star'
         });
 
-        var markers = new L.MarkerClusterGroup();
+        var featureGroup = L.featureGroup().addTo(map);
+
+        var circle_options = {
+          color: '#fff',      // Stroke color
+          opacity: 1,         // Stroke opacity
+          weight: 10,         // Stroke weight
+          fillColor: '#000',  // Fill color
+          fillOpacity: 0.6    // Fill opacity
+        };
+
+
+        var markers = new L.MarkerClusterGroup({
+            iconCreateFunction: function(cluster) {
+                var lat = cluster._latlng["lat"];
+                var lng = cluster._latlng["lng"];
+
+                var circle = L.circle([lat, lng], 100000, circle_options).addTo(map);
+                var markersies = cluster.getAllChildMarkers();
+                for (var i = 0; i < markersies.length; i++) {
+                    console.log(markersies[i]['options']['sentiment']);
+                }
+
+                var childCount = cluster.getChildCount();
+                return new L.DivIcon({
+                    html: '<div><span>' + childCount + '</span></div>',
+                    className: 'marker-cluster marker-cluster-small',
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
 
         for (var i = 0; i < tweets.length; i++) {
             var curr = tweets[i];
@@ -59,12 +91,14 @@
             if (sentiment === 'positive') {
                 var marker = L.marker(new L.LatLng(latitude, longitude), {
                     icon: iconPos,
-                    title: title
+                    title: title,
+                    sentiment: 'positive'
                 });
             } else {
                 var marker = L.marker(new L.LatLng(latitude, longitude), {
                     icon: iconNeg,
-                    title: title
+                    title: title,
+                    sentiment: 'negative'
                 });
             }
 
