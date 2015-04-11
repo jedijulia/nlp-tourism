@@ -52,12 +52,16 @@
 
         var featureGroup = L.featureGroup().addTo(map);
 
-        var circle_options = {
-          color: '#fff',      // Stroke color
-          opacity: 1,         // Stroke opacity
-          weight: 10,         // Stroke weight
-          fillColor: '#000',  // Fill color
-          fillOpacity: 0.6    // Fill opacity
+        var circle_options_pos = {
+          stroke: false,
+          fillColor: 'green',
+          fillOpacity: 0.8
+        };
+
+        var circle_options_neg = {
+          stroke: false,
+          fillColor: 'red',
+          fillOpacity: 0.8
         };
 
 
@@ -66,12 +70,11 @@
                 var lat = cluster._latlng["lat"];
                 var lng = cluster._latlng["lng"];
 
-                var circle = L.circle([lat, lng], 100000, circle_options).addTo(map);
-                var markersies = cluster.getAllChildMarkers();
-                for (var i = 0; i < markersies.length; i++) {
-                    console.log(markersies[i]['options']['sentiment']);
-                }
-
+                var childMarkers = cluster.getAllChildMarkers();
+                var circleRadius = getCircleRadius(childMarkers, 100000);
+                var posCircle = L.circle([lat, lng], circleRadius['posRadius'], circle_options_pos).addTo(map);
+                var negCircle = L.circle([lat, lng], circleRadius['negRadius'], circle_options_neg).addTo(map);
+                
                 var childCount = cluster.getChildCount();
                 return new L.DivIcon({
                     html: '<div><span>' + childCount + '</span></div>',
@@ -106,6 +109,30 @@
             markers.addLayer(marker);
         }
         map.addLayer(markers);
+
+        var getPosNegCount = function(markers) {
+            var posCount = 0;
+            var negCount = 0;
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i]['options']['sentiment'] == 'positive') {
+                    posCount++;
+                } else {
+                    negCount++;
+                }
+            }
+            return {'posCount': posCount, 'negCount': negCount};
+        };
+
+        var getCircleRadius = function(markers, maxRadius) {
+            var posNegCount = getPosNegCount(markers);
+            var posCount = posNegCount['posCount'];
+            var negCount = posNegCount['negCount'];
+
+            var total = posCount + negCount;
+            var posRadius = (posCount / total) * maxRadius;
+            var negRadius = (negCount / total) * maxRadius;
+            return {'posRadius': posRadius, 'negRadius': negRadius};
+        };
     </script>
 </body>
 </html>
