@@ -55,34 +55,17 @@
         var circle_options_pos = {
           stroke: false,
           fillColor: 'green',
-          fillOpacity: 0.8
+          fillOpacity: 0.3
         };
 
         var circle_options_neg = {
           stroke: false,
           fillColor: 'red',
-          fillOpacity: 0.8
+          fillOpacity: 0.3
         };
 
-
-        var markers = new L.MarkerClusterGroup({
-            iconCreateFunction: function(cluster) {
-                var lat = cluster._latlng["lat"];
-                var lng = cluster._latlng["lng"];
-
-                var childMarkers = cluster.getAllChildMarkers();
-                var circleRadius = getCircleRadius(childMarkers, 100000);
-                var posCircle = L.circle([lat, lng], circleRadius['posRadius'], circle_options_pos).addTo(map);
-                var negCircle = L.circle([lat, lng], circleRadius['negRadius'], circle_options_neg).addTo(map);
-                
-                var childCount = cluster.getChildCount();
-                return new L.DivIcon({
-                    html: '<div><span>' + childCount + '</span></div>',
-                    className: 'marker-cluster marker-cluster-small',
-                    iconSize: new L.Point(40, 40)
-                });
-            }
-        });
+        var circles = [];
+        var markers = new L.MarkerClusterGroup();
 
         for (var i = 0; i < tweets.length; i++) {
             var curr = tweets[i];
@@ -110,6 +93,55 @@
         }
         map.addLayer(markers);
 
+        var allClusters = {};
+        var circles = [];
+        var flag = false;
+
+        map.on('zoomend', function(e) {
+            if (!flag) {
+                top_cluster = markers._topClusterLevel;
+                console.log(top_cluster);
+                findClusters(top_cluster, allClusters);
+                console.log(allClusters);
+                flag = true;
+            }
+            for (var i = 0; i < circles.length; i++) {
+                map.removeLayer(circles[i]);
+            }
+            circles = [];
+
+            var clusters = allClusters[map.getZoom()];
+            for (var i = 0; i < clusters.length; i++) {
+                var cluster = clusters[i];
+                var childMarkers = cluster.getAllChildMarkers();
+                var circleRadius = getCircleRadius(childMarkers, 100000);
+                
+                var posCircle = L.circle(cluster._latlng, circleRadius['posRadius'], circle_options_pos);
+                posCircle.addTo(map);
+                circles.push(posCircle);
+
+                var negCircle = L.circle(cluster._latlng, circleRadius['negRadius'], circle_options_neg);
+                negCircle.addTo(map);
+                circles.push(negCircle);
+            };
+
+        });
+
+        var findClusters = function(cluster, clusters) {
+            if (clusters[cluster._zoom]) {
+                clusters[cluster._zoom].push(cluster);
+            } else {
+                clusters[cluster._zoom] = [cluster];
+            }
+            if (cluster._childClusters.length > 0) {
+                for (var i = 0; i < cluster._childClusters.length; i++) {
+                    findClusters(cluster._childClusters[i], clusters);
+                }
+            } else {
+                return;
+            }
+        };
+        
         var getPosNegCount = function(markers) {
             var posCount = 0;
             var negCount = 0;
