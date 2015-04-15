@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset=utf-8 />
-    <title>Leaflet Markercluster</title>
+    <title>NLP tourism</title>
     <meta name='viewport' content='initial-scale=1, maximum-scale=1, user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.css' rel='stylesheet' />
@@ -100,9 +100,7 @@
         map.on('zoomend', function(e) {
             if (!flag) {
                 top_cluster = markers._topClusterLevel;
-                console.log(top_cluster);
                 findClusters(top_cluster, allClusters);
-                console.log(allClusters);
                 flag = true;
             }
             for (var i = 0; i < circles.length; i++) {
@@ -114,14 +112,16 @@
             for (var i = 0; i < clusters.length; i++) {
                 var cluster = clusters[i];
                 var childMarkers = cluster.getAllChildMarkers();
-                var circleRadius = getCircleRadius(childMarkers, 100000);
+                var circleRadius = getCircleRadius(childMarkers, 50);
                 
-                var posCircle = L.circle(cluster._latlng, circleRadius['posRadius'], circle_options_pos);
-                posCircle.addTo(map);
+                var posCircle = L.circleMarker(cluster._latlng, circle_options_pos);
+                posCircle.setRadius(circleRadius['posRadius']);
+                map.addLayer(posCircle);
                 circles.push(posCircle);
 
-                var negCircle = L.circle(cluster._latlng, circleRadius['negRadius'], circle_options_neg);
-                negCircle.addTo(map);
+                var negCircle = L.circleMarker(cluster._latlng, circle_options_neg);
+                negCircle.setRadius(circleRadius['negRadius']);
+                map.addLayer(negCircle);
                 circles.push(negCircle);
             };
 
