@@ -65,7 +65,16 @@
         };
 
         var circles = [];
-        var markers = new L.MarkerClusterGroup();
+        var markers = new L.MarkerClusterGroup({
+            iconCreateFunction: function(cluster) {
+                var childCount = cluster.getChildCount();
+                return new L.DivIcon({
+                    html: '<div><span>' + childCount + '</span></div>',
+                    className: 'marker-cluster marker-cluster-medium',
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
 
         for (var i = 0; i < tweets.length; i++) {
             var curr = tweets[i];
