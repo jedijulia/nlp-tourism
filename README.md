@@ -8,6 +8,9 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - Naive Bayes
 - Suppor Vector Machines (linear kernel)
 
+#####Features
+- bag-of-words
+
 #####Classifiers and algorithms used in sentiment analysis:
 
 - Naive Bayes
