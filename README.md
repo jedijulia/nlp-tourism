@@ -11,6 +11,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 #####Features
 - bag-of-words
 - top words
+- top words with weights
 
 #####Classifiers and algorithms used in sentiment analysis:
 
