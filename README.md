@@ -12,7 +12,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - bag-of-words
 - top words
 - top words with weights
-- top words from TripAdvisor
+- top words from TripAdvisor with weights
 
 #####Classifiers and algorithms used in sentiment analysis:
 
