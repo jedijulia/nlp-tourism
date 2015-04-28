@@ -18,3 +18,5 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 
 - Naive Bayes
 - Latent Dirichlet Allocation
+
+#####Features
