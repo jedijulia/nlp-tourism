@@ -20,3 +20,5 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - Latent Dirichlet Allocation
 
 #####Features
+
+- POS tags
