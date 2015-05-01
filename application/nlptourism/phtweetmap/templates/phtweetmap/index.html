@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>NLP tourism</title>
+    <meta name='viewport' content='initial-scale=1, maximum-scale=1, user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.7/mapbox.css' rel='stylesheet' />
+    <style>
+        body { 
+            margin: 0;
+            padding:0; 
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css' rel='stylesheet' />
+
+    <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+
+    <script src="data/twitter_data.js"></script>
+
+    <div id='map'> </div>
+
+    <script>
+        L.mapbox.accessToken = 'pk.eyJ1IjoiamNtZW5jaGF2ZXoiLCJhIjoiM1NqakVJNCJ9.xrJj65p6RUBEYW7iu9NHxg';
+
+        var southWest = L.latLng(5.62, 116.87),
+            northEast = L.latLng(19.68, 128.44),
+            bounds = L.latLngBounds(southWest, northEast);
+
+        var map = L.mapbox.map('map', 'jcmenchavez.lmih4k88', {
+            maxBounds: bounds,
+            minZoom: 6
+        });
+
+        var iconPos = L.mapbox.marker.icon({
+            'marker-symbol': 'heart',
+        });
+        var iconNeg = L.mapbox.marker.icon({
+            'marker-symbol': 'star'
+        });
+
+        var featureGroup = L.featureGroup().addTo(map);
+
+        var circle_options_pos = {
+          stroke: false,
+          fillColor: 'green',
+          fillOpacity: 0.3
+        };
+
+        var circle_options_neg = {
+          stroke: false,
+          fillColor: 'red',
+          fillOpacity: 0.3
+        };
+
+        var circles = [];
+        var markers = new L.MarkerClusterGroup({
+            iconCreateFunction: function(cluster) {
+                var childCount = cluster.getChildCount();
+                return new L.DivIcon({
+                    html: '<div><span>' + childCount + '</span></div>',
+                    className: 'marker-cluster marker-cluster-medium',
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
+
+        for (var i = 0; i < tweets.length; i++) {
+            var curr = tweets[i];
+            var title = curr["text"];
+            var latitude = curr["coordinates"]["coordinates"][1];
+            var longitude = curr["coordinates"]["coordinates"][0];
+            var sentiment = curr["sentiment"];
+
+            if (sentiment === 'positive') {
+                var marker = L.marker(new L.LatLng(latitude, longitude), {
+                    icon: iconPos,
+                    title: title,
+                    sentiment: 'positive'
+                });
+            } else {
+                var marker = L.marker(new L.LatLng(latitude, longitude), {
+                    icon: iconNeg,
+                    title: title,
+                    sentiment: 'negative'
+                });
+            }
+
+            marker.bindPopup(title);
+            markers.addLayer(marker);
+        }
+        map.addLayer(markers);
+
+        var allClusters = {};
+        var circles = [];
+        var flag = false;
+
+        map.on('zoomend', function(e) {
+            if (!flag) {
+                top_cluster = markers._topClusterLevel;
+                findClusters(top_cluster, allClusters);
+                flag = true;
+            }
+            for (var i = 0; i < circles.length; i++) {
+                map.removeLayer(circles[i]);
+            }
+            circles = [];
+
+            var clusters = allClusters[map.getZoom()];
+            for (var i = 0; i < clusters.length; i++) {
+                var cluster = clusters[i];
+                var childMarkers = cluster.getAllChildMarkers();
+                var circleRadius = getCircleRadius(childMarkers, 50);
+                
+                var posCircle = L.circleMarker(cluster._latlng, circle_options_pos);
+                posCircle.setRadius(circleRadius['posRadius']);
+                map.addLayer(posCircle);
+                circles.push(posCircle);
+
+                var negCircle = L.circleMarker(cluster._latlng, circle_options_neg);
+                negCircle.setRadius(circleRadius['negRadius']);
+                map.addLayer(negCircle);
+                circles.push(negCircle);
+            };
+
+        });
+
+        var findClusters = function(cluster, clusters) {
+            if (clusters[cluster._zoom]) {
+                clusters[cluster._zoom].push(cluster);
+            } else {
+                clusters[cluster._zoom] = [cluster];
+            }
+            if (cluster._childClusters.length > 0) {
+                for (var i = 0; i < cluster._childClusters.length; i++) {
+                    findClusters(cluster._childClusters[i], clusters);
+                }
+            } else {
+                return;
+            }
+        };
+        
+        var getPosNegCount = function(markers) {
+            var posCount = 0;
+            var negCount = 0;
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i]['options']['sentiment'] == 'positive') {
+                    posCount++;
+                } else {
+                    negCount++;
+                }
+            }
+            return {'posCount': posCount, 'negCount': negCount};
+        };
+
+        var getCircleRadius = function(markers, maxRadius) {
+            var posNegCount = getPosNegCount(markers);
+            var posCount = posNegCount['posCount'];
+            var negCount = posNegCount['negCount'];
+
+            var total = posCount + negCount;
+            var posRadius = (posCount / total) * maxRadius;
+            var negRadius = (negCount / total) * maxRadius;
+            return {'posRadius': posRadius, 'negRadius': negRadius};
+        };
+    </script>
+</body>
+</html>
