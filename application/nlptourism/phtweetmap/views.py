@@ -23,6 +23,6 @@ class RetrieveTweetsView(View):
                 'sentiment': tweet.sentiment
             }
             tweets_list.append(tweet_json)
-            tweet.retrieved = False
+            tweet.retrieved = True
             tweet.save()
         return HttpResponse(json.dumps(tweets_list))
