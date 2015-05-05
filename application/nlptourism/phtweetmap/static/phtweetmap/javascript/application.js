@@ -42,35 +42,37 @@ var markers = new L.MarkerClusterGroup({
     }
 });
 
-$.ajax({
-    url: '/retrieve',
-    method: 'GET',
-    success: function(data) {
-        data = JSON.parse(data);
-        for (var i = 0; i < data.length; i++) {
-            var tweet = data[i];
-            console.log(tweet);
+setInterval(function() {
+    $.ajax({
+        url: '/retrieve',
+        method: 'GET',
+        success: function(data) {
+            data = JSON.parse(data);
+            for (var i = 0; i < data.length; i++) {
+                var tweet = data[i];
+                console.log(tweet);
 
-            if (tweet['sentiment'] === 'tourism') { //TEMPORARY FOR TESTING. should be: positive
-                var marker = L.marker(new L.LatLng(tweet['lat'], tweet['lng']), {
-                    icon: iconPos,
-                    title: tweet['text'],
-                    sentiment: 'positive'
-                });
-            } else {
-                var marker = L.marker(new L.LatLng(tweet['lat'], tweet['lng']), {
-                    icon: iconNeg,
-                    title: tweet['text'],
-                    sentiment: 'negative'
-                });
+                if (tweet['sentiment'] === 'tourism') { //TEMPORARY FOR TESTING. should be: positive
+                    var marker = L.marker(new L.LatLng(tweet['lat'], tweet['lng']), {
+                        icon: iconPos,
+                        title: tweet['text'],
+                        sentiment: 'positive'
+                    });
+                } else {
+                    var marker = L.marker(new L.LatLng(tweet['lat'], tweet['lng']), {
+                        icon: iconNeg,
+                        title: tweet['text'],
+                        sentiment: 'negative'
+                    });
+                }
+
+                marker.bindPopup(tweet['text']);
+                markers.addLayer(marker);
             }
-
-            marker.bindPopup(tweet['text']);
-            markers.addLayer(marker);
+            map.addLayer(markers);      
         }
-        map.addLayer(markers);      
-    }
-});
+    });
+}, 1000);
 
 var allClusters = {};
 var circles = [];
