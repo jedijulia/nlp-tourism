@@ -156,6 +156,20 @@ def process_data(tourism_file, nontourism_file):
     test_set = feature_set[size:]
     return [training_set, test_set, datamixed, size, feature_set]
 
+def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tweets):
+    datamixed = [(clean(tweet), 'tourism') for tweet in tourism_file]
+    datamixed += [(clean(tweet), 'nontourism') for tweet in nontourism_file]
+    datamixed += [(clean(tweet['text'].encode('utf-8')), 'tourism') for tweet in tourism_tweets]
+    datamixed += [(clean(tweet['text'].encode('utf-8')), 'nontourism') for tweet in nontourism_tweets]
+
+    random.shuffle(datamixed)
+
+    feature_set = [(feature_extractor_lda_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
+    size = int(len(feature_set) * 0.8)
+    training_set = feature_set[:size]
+    test_set = feature_set[size:]
+    return [training_set, test_set, datamixed, size, feature_set]
+
 def get_fscore(classifier, data):
     true_positives = 0
     true_negatives = 0
@@ -189,7 +203,6 @@ def get_fscore(classifier, data):
     print 'F-score: ' + str(fscore)
     return fscore
 
-
 # 10-fold cross validation
 def cross_validate(classifier, training_set, test_set):
     chosen_classif = classifier
@@ -216,7 +229,6 @@ def cross_validate(classifier, training_set, test_set):
     test_accuracy = classify.accuracy(best_classifier, test_set)
     return best_classifier
 
-
 def train():
     # get data from files
     tourism_file = open('classifier/tourism.txt', 'r')
@@ -224,6 +236,28 @@ def train():
 
     # retrieve features
     data_set = process_data(tourism_file, nontourism_file)
+    training_set = data_set[0]
+    test_set = data_set[1]
+    datamixed = data_set[2]
+    size = data_set[3]
+    feature_set = data_set[4]
+
+    # classifiers
+    classifier_nb = NaiveBayesClassifier
+    classifier_lr = SklearnClassifier(LogisticRegression())
+    classifier_svm = SklearnClassifier(LinearSVC())
+
+    # test individual
+    classifier = cross_validate(classifier_svm, training_set, test_set)
+    return classifier
+
+def train_db(tourism_tweets, nontourism_tweets):
+    # get data from files
+    tourism_file = open('classifier/tourism.txt', 'r')
+    nontourism_file = open('classifier/nontourism.txt', 'r')
+
+    # retrieve features
+    data_set = process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tweets)
     training_set = data_set[0]
     test_set = data_set[1]
     datamixed = data_set[2]
