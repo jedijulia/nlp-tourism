@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Tourism-related Tweet Identification Test</title>
+</head>
+
+<body>
+    <div id="tweets">
+        <ul>
+       	{% for tweet in tweets %}
+            <li> {{ tweet.text }} </li>
+        {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
