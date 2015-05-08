@@ -1,0 +1,36 @@
+body {
+	background-color: #ECEFF1;
+}
+
+li {
+	font-size: 14px;
+	font-family: Consolas;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+li:hover {
+	background-color: #FFFFFF;
+}
+
+#buttons {
+	float: right;
+	margin-top: -5px;
+}
+
+button {
+    width: 40px;
+    height: 23px;
+    font-size: 10px;
+    font-family: Consolas;
+    color: white;
+    border: none;
+}
+
+.tourism-button {
+	background-color: #00E676;
+}
+
+.nontourism-button {
+	background-color: #FF1744;
+}
