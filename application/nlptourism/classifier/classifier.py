@@ -198,10 +198,10 @@ def get_fscore(classifier, data):
     if (precision + recall) != 0:
         fscore = 2 * (precision * recall) / (precision + recall)
 
-    print 'Precision: ' + str(precision)
-    print 'Recall: ' + str(recall)
-    print 'F-score: ' + str(fscore)
-    return fscore
+    # print 'Precision: ' + str(precision)
+    # print 'Recall: ' + str(recall)
+    # print 'F-score: ' + str(fscore)
+    return {'fscore': fscore, 'precision': precision, 'recall': recall}
 
 # 10-fold cross validation
 def cross_validate(classifier, training_set, test_set):
@@ -224,10 +224,10 @@ def cross_validate(classifier, training_set, test_set):
             best_classifier = classifier
             best_accuracy = accuracy
             best_train_accuracy = train_accuracy
-        get_fscore(classifier, test)
+        fscore = get_fscore(classifier, test)
     
     test_accuracy = classify.accuracy(best_classifier, test_set)
-    return best_classifier
+    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': test_accuracy}
 
 def train():
     # get data from files
@@ -248,7 +248,7 @@ def train():
     classifier_svm = SklearnClassifier(LinearSVC())
 
     # test individual
-    classifier = cross_validate(classifier_svm, training_set, test_set)
+    classifier = cross_validate(classifier_svm, training_set, test_set)['classifier']
     return classifier
 
 def train_db(tourism_tweets, nontourism_tweets):
@@ -270,5 +270,8 @@ def train_db(tourism_tweets, nontourism_tweets):
     classifier_svm = SklearnClassifier(LinearSVC())
 
     # test individual
-    classifier = cross_validate(classifier_svm, training_set, test_set)
-    return classifier
+    result = cross_validate(classifier_svm, training_set, test_set)
+    classifier = result['classifier']
+    fscore = result['fscore']
+    accuracy = result['accuracy']
+    return {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
