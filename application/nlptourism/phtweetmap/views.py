@@ -39,9 +39,12 @@ class TestTweetsView(TemplateView):
         # train
         tweets_train_tourism = Tweet.objects.filter(classified=True, actual_classification='tourism')
         tweets_train_nontourism = Tweet.objects.filter(classified=True, actual_classification='nontourism')
-        classifier = train_db(tweets_train_tourism, tweets_train_nontourism)
+        train_result = train_db(tweets_train_tourism, tweets_train_nontourism)
+        classifier = train_result['classifier']
+        context['accuracy'] = train_result['accuracy']
+        context['fscore'] = train_result['fscore']
         # test
-        tweets = self.randomize_tweets('classifier/data/2015-03-06.happydata.txt', 100)
+        tweets = self.randomize_tweets('classifier/data/2015-03-06.happydata.txt', 1)
         tweets_test = []
         for tweet in tweets:
             if not Tweet.objects.filter(tweet_id=tweet['id']) and tweet['coordinates']:
@@ -87,3 +90,14 @@ class SetClassificationView(View):
         tweet.classified = True
         tweet.save()
         return HttpResponse('')
+    # def get(self, *args, **kwargs):
+    #     tweet = get_object_or_404(Tweet, pk=kwargs['pk'])
+    #     actual_classification = kwargs['actual_classification']
+    #     if actual_classification == 'tourism-act':
+    #         actual_classification = 'tourism'
+    #         tweet.actual_classification = actual_classification
+    #         tweet.classified = True
+    #         tweet.save()
+    #     else:
+    #         tweet.delete()
+    #     return HttpResponse('')

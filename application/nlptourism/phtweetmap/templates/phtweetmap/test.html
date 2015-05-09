@@ -7,6 +7,12 @@
 </head>
 
 <body>
+    <div id="scores">
+        Accuracy: {{ accuracy }} </br>
+        Precision: {{ fscore.precision }} </br>
+        Recall: {{ fscore.recall }} </br>
+        F-score: {{ fscore.fscore }}
+    </div>
     <div id="tweets">
         <ul>
         {% for tweet in tweets %}
