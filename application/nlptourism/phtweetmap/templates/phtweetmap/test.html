@@ -3,14 +3,14 @@
 <html lang="en">
 <head>
     <title>Tourism-related Tweet Identification Test</title>
-    <link rel="stylesheet" href="{% static 'phtweetmap/stylesheets/style.css' %}"  />
+    <link rel="stylesheet" href="{% static 'phtweetmap/stylesheets/style.css' %}"/>
 </head>
 
 <body>
     <div id="tweets">
         <ul>
         {% for tweet in tweets %}
-            <li class="{{tweet.classification}}"> 
+            <li class="{{tweet.classification}}" data-pk="{{tweet.pk}}"> 
                 {{ tweet.text }}
                 <div id="buttons">
                     <button class="tourism-button">✓</button>
@@ -18,7 +18,12 @@
                 </div>
             </li>
         {% endfor %}
+        <div id="results">
+            Calculate
+        </div>
         </ul>
     </div>
+    <script src="{% static 'phtweetmap/javascript/jquery.js' %}"></script>
+    <script src="{% static 'phtweetmap/javascript/test.js' %}"></script>
 </body>
 </html>

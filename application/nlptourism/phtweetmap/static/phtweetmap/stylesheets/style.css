@@ -34,3 +34,14 @@ button {
 .nontourism-button {
 	background-color: #FF1744;
 }
+
+#results {
+	width: 80px;
+	height: 20px;
+	border: solid;
+	font-size: 14px;
+	font-family: Consolas;
+	color: white;
+	background-color: #EC407A;
+	text-align: center;
+}

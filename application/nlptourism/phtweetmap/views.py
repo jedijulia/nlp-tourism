@@ -3,6 +3,7 @@ import random
 
 from django.http import HttpResponse
 from django.views.generic import TemplateView, View
+from django.shortcuts import get_object_or_404
 
 from classifier.classifier import train_db, feature_extractor_lda_tripadvisor_top_words_weights
 from models import Tweet
@@ -54,7 +55,7 @@ class TestTweetsView(TemplateView):
                     tweet_obj = Tweet(tweet_id=tweet_id, user=user,
                                                      lat=lat, lng=lng, text=text, 
                                                      classification=classification)
-                    #tweet_obj.save()
+                    tweet_obj.save()
                     tweets_test.append(tweet_obj)
         context['tweets'] = tweets_test
         return context
@@ -64,7 +65,7 @@ class TestTweetsView(TemplateView):
             tweets = []
             i = 0
             for tweet in tweets_file:
-                if i < 100:
+                if i < lines:
                     tweets.append(json.loads(tweet))
                 else:
                     j = random.randrange(i)
@@ -72,3 +73,17 @@ class TestTweetsView(TemplateView):
                         tweets[j] = json.loads(tweet)
                 i += 1
             return tweets
+
+
+class SetClassificationView(View):
+    def get(self, *args, **kwargs):
+        tweet = get_object_or_404(Tweet, pk=kwargs['pk'])
+        actual_classification = kwargs['actual_classification']
+        if actual_classification == 'tourism-act':
+            actual_classification = 'tourism'
+        else:
+            actual_classification = 'nontourism'
+        tweet.actual_classification = actual_classification
+        tweet.classified = True
+        tweet.save()
+        return HttpResponse('')

@@ -159,14 +159,14 @@ def process_data(tourism_file, nontourism_file):
 def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tweets):
     datamixed = [(clean(tweet), 'tourism') for tweet in tourism_file]
     datamixed += [(clean(tweet), 'nontourism') for tweet in nontourism_file]
-    datamixed += [(clean(tweet['text'].encode('utf-8')), 'tourism') for tweet in tourism_tweets]
-    datamixed += [(clean(tweet['text'].encode('utf-8')), 'nontourism') for tweet in nontourism_tweets]
+    datamixed += [ (clean(tweet.text.encode('utf-8')) , 'tourism') for tweet in tourism_tweets]
+    datamixed += [(clean(tweet.text.encode('utf-8')), 'nontourism') for tweet in nontourism_tweets]
 
     random.shuffle(datamixed)
-
     feature_set = [(feature_extractor_lda_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
+    print '~~~~~~~~~~~~~~~~~~~~~~ TRAINING SET SIZE: ' + str(len(training_set)) + ' ~~~~~~~~~~~~~~~~~~~~~~'
     test_set = feature_set[size:]
     return [training_set, test_set, datamixed, size, feature_set]
 
