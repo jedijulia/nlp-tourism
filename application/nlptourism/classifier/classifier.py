@@ -162,8 +162,8 @@ def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tw
     datamixed += [ (clean(tweet.text.encode('utf-8')) , 'tourism') for tweet in tourism_tweets]
     datamixed += [(clean(tweet.text.encode('utf-8')), 'nontourism') for tweet in nontourism_tweets]
 
-    random.shuffle(datamixed)
-    feature_set = [(feature_extractor_lda_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
+    random.shuffle(datamixed) # SET HERE!
+    feature_set = [(feature_extractor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     print '~~~~~~~~~~~~~~~~~~~~~~ TRAINING SET SIZE: ' + str(len(training_set)) + ' ~~~~~~~~~~~~~~~~~~~~~~'
@@ -227,7 +227,8 @@ def cross_validate(classifier, training_set, test_set):
         fscore = get_fscore(classifier, test)
     
     test_accuracy = classify.accuracy(best_classifier, test_set)
-    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': test_accuracy}
+    accuracy = {'test_accuracy': test_accuracy, 'best_train_accuracy': best_train_accuracy}
+    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
 
 def train():
     # get data from files
@@ -270,8 +271,39 @@ def train_db(tourism_tweets, nontourism_tweets):
     classifier_svm = SklearnClassifier(LinearSVC())
 
     # test individual
-    result = cross_validate(classifier_svm, training_set, test_set)
+    result = cross_validate(classifier_svm, training_set, test_set) # SET HERE!
     classifier = result['classifier']
     fscore = result['fscore']
-    accuracy = result['accuracy']
-    return {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
+    accuracy = result['accuracy']['test_accuracy']
+
+    to_return = {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
+
+    # plot curves
+    plotfile = open('phtweetmap/plotdata/tww-svm-2.txt', 'w') # SET HERE!
+
+    data_size = 20
+    while data_size <= 1215:
+        curr_data_set = feature_set[:data_size]
+        curr_size = int(len(curr_data_set) * 0.8)
+        train = curr_data_set[:curr_size]
+        test = curr_data_set[curr_size:]
+        accuracy = cross_validate(classifier_svm, train, test)['accuracy'] # SET HERE!
+
+        plotfile.write(str(data_size) + ' ' + str(accuracy['test_accuracy']) +  ' ' + str(accuracy['best_train_accuracy']) + '\n')
+
+        data_size += 50
+    plotfile.close()
+
+    # # show errors
+    # errors = []
+    # ctr = 0
+    # for(tweet, label) in datamixed[size:]:
+    #     guess = classifier.classify(feature_extractor_lda_tripadvisor_top_words_weights(tweet))
+    #     if guess != label:
+    #         errors.append((label, guess, tweet))
+    #     else:
+    #         ctr += 1
+    # for (label, guess, tweet) in sorted(errors):
+    #   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
+
+    return to_return
