@@ -17,8 +17,10 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 #####Classifiers and algorithms used in sentiment analysis:
 
 - Naive Bayes
-- Latent Dirichlet Allocation
 
 #####Features
 
 - POS tags
+- N-grams (bigrams)
+
+**PS: This is awesome!**
