@@ -103,10 +103,7 @@ def get_fscore(classifier, data):
     if (precision + recall) != 0:
         fscore = 2 * (precision * recall) / (precision + recall)
 
-    print 'Precision: ' + str(precision)
-    print 'Recall: ' + str(recall)
-    print 'F-score: ' + str(fscore)
-    return fscore
+    return {'fscore': fscore, 'precision': precision, 'recall': recall}
 
 # 10-fold cross validation
 def cross_validate(classifier, training_set, test_set):
@@ -135,40 +132,42 @@ def cross_validate(classifier, training_set, test_set):
     test_accuracy = classify.accuracy(best_classifier, test_set)
     print 'Best classifier accuracy: ' + str(test_accuracy)
     print 'Best classifier precision recall fscore: '
-    print get_fscore(best_classifier, test_set)
-    return [test_accuracy, best_train_accuracy, best_classifier]
+    fscore = get_fscore(best_classifier, test_set)
+    accuracy = {'test_accuracy': test_accuracy, 'best_train_accuracy': best_train_accuracy}
+    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
 
-# get data from files
-positive_file = open('positive.txt', 'r')
-negative_file = open('negative.txt', 'r')
+def train():
+    # get data from files
+    positive_file = open('sentiment_analyzer/positive.txt', 'r')
+    negative_file = open('sentiment_analyzer/negative.txt', 'r')
 
-# retrieve features
-data_set = process_data(positive_file, negative_file)
-feature_set = data_set[0]
-training_set = data_set[1]
-test_set = data_set[2]
-datamixed = data_set[3]
-size = data_set[4]
+    # retrieve features
+    data_set = process_data(positive_file, negative_file)
+    feature_set = data_set[0]
+    training_set = data_set[1]
+    test_set = data_set[2]
+    datamixed = data_set[3]
+    size = data_set[4]
 
-print 'training set size: ' + str(len(training_set))
-print 'test set size: ' + str(len(test_set))
+    # classifiers
+    classifier_nb = NaiveBayesClassifier
 
-# classifiers
-classifier_nb = NaiveBayesClassifier
-classifier_svm = SklearnClassifier(LinearSVC())
+    # test individual
+    result = cross_validate(classifier_nb, training_set, test_set)
+    classifier = result['classifier']
+    fscore = result['fscore']
+    accuracy = result['accuracy']['test_accuracy']
+    
+    return {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
 
-# test individual
-result = cross_validate(classifier_nb, training_set, test_set) # need to set classifier here, currently lr
-classifier = result[2]
-
-# # show errors
-# errors = []
-# ctr = 0
-# for(tweet, label) in datamixed[size:]:
-#     guess = classifier.classify(feature_extractor(tweet))
-#     if guess != label:
-#         errors.append((label, guess, tweet))
-#     else:
-#         ctr += 1
-# for (label, guess, tweet) in sorted(errors):
-#   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
+# # # show errors
+# # errors = []
+# # ctr = 0
+# # for(tweet, label) in datamixed[size:]:
+# #     guess = classifier.classify(feature_extractor(tweet))
+# #     if guess != label:
+# #         errors.append((label, guess, tweet))
+# #     else:
+# #         ctr += 1
+# # for (label, guess, tweet) in sorted(errors):
+# #   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
