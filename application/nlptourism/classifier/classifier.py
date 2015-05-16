@@ -163,7 +163,7 @@ def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tw
     datamixed += [(clean(tweet.text.encode('utf-8')), 'nontourism') for tweet in nontourism_tweets]
 
     random.shuffle(datamixed) # SET HERE!
-    feature_set = [(feature_extractor(tweet), label) for (tweet, label) in datamixed]
+    feature_set = [(feature_extractor_lda_tripadvisor_top_words_weights(tweet), label) for (tweet, label) in datamixed]
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     print '~~~~~~~~~~~~~~~~~~~~~~ TRAINING SET SIZE: ' + str(len(training_set)) + ' ~~~~~~~~~~~~~~~~~~~~~~'
@@ -271,7 +271,7 @@ def train_db(tourism_tweets, nontourism_tweets):
     classifier_svm = SklearnClassifier(LinearSVC())
 
     # test individual
-    result = cross_validate(classifier_nb, training_set, test_set) # SET HERE!
+    result = cross_validate(classifier_svm, training_set, test_set) # SET HERE!
     classifier = result['classifier']
     fscore = result['fscore']
     accuracy = result['accuracy']['test_accuracy']
