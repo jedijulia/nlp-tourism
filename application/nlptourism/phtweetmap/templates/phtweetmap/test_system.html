@@ -1,0 +1,32 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>System Test</title>
+    <link rel="stylesheet" href="{% static 'phtweetmap/stylesheets/style.css' %}"/>
+</head>
+
+<body>
+    <div id="scores">
+        CLASSIFICATION
+        Accuracy: {{ accuracy }} </br>
+        Precision: {{ fscore.precision }} </br>
+        Recall: {{ fscore.recall }} </br>
+        F-score: {{ fscore.fscore }} </br> </br>
+
+        SENTIMENT ANALYSIS
+        Accuracy: {{ accuracy_sentiment }} </br>
+        Precision: {{ fscore_sentiment.precision }} </br>
+        Recall: {{ fscore_sentiment.recall }} </br>
+        F-score: {{ fscore_sentiment.fscore }}
+
+    </div>
+    <div id="tweets">
+        <ul>
+        {% for tweet, classification in tweets.items %}
+           <li> Classification: {{ classification }} || Tweet: {{ tweet }} </li>
+        {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
