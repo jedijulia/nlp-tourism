@@ -50,7 +50,6 @@ setInterval(function() {
             data = JSON.parse(data);
             for (var i = 0; i < data.length; i++) {
                 var tweet = data[i];
-                console.log(tweet);
 
                 if (tweet['sentiment'] === 'tourism') { //TEMPORARY FOR TESTING. should be: positive
                     var marker = L.marker(new L.LatLng(tweet['lat'], tweet['lng']), {
@@ -69,7 +68,8 @@ setInterval(function() {
                 marker.bindPopup(tweet['text']);
                 markers.addLayer(marker);
             }
-            map.addLayer(markers);      
+            map.addLayer(markers);
+            updateCircles();
         }
     });
 }, 1000);
@@ -78,35 +78,7 @@ var allClusters = {};
 var circles = [];
 var flag = false;
 
-map.on('zoomend', function(e) {
-    if (!flag) {
-        top_cluster = markers._topClusterLevel;
-        findClusters(top_cluster, allClusters);
-        flag = true;
-    }
-    for (var i = 0; i < circles.length; i++) {
-        map.removeLayer(circles[i]);
-    }
-    circles = [];
-
-    var clusters = allClusters[map.getZoom()] || [];
-    for (var i = 0; i < clusters.length; i++) {
-        var cluster = clusters[i];
-        var childMarkers = cluster.getAllChildMarkers();
-        var circleRadius = getCircleRadius(childMarkers, 50);
-        
-        var posCircle = L.circleMarker(cluster._latlng, circle_options_pos);
-        posCircle.setRadius(circleRadius['posRadius']);
-        map.addLayer(posCircle);
-        circles.push(posCircle);
-
-        var negCircle = L.circleMarker(cluster._latlng, circle_options_neg);
-        negCircle.setRadius(circleRadius['negRadius']);
-        map.addLayer(negCircle);
-        circles.push(negCircle);
-    };
-
-});
+map.on('zoomend', updateCircles);
 
 var findClusters = function(cluster, clusters) {
     if (!cluster) {
@@ -149,3 +121,29 @@ var getCircleRadius = function(markers, maxRadius) {
     var negRadius = (negCount / total) * maxRadius;
     return {'posRadius': posRadius, 'negRadius': negRadius};
 };
+
+function updateCircles() {
+    top_cluster = markers._topClusterLevel;
+    findClusters(top_cluster, allClusters);
+
+    for (var i = 0; i < circles.length; i++) {
+        map.removeLayer(circles[i]);
+    }
+    circles = [];
+    var clusters = allClusters[map.getZoom()] || [];
+    for (var i = 0; i < clusters.length; i++) {
+        var cluster = clusters[i];
+        var childMarkers = cluster.getAllChildMarkers();
+        var circleRadius = getCircleRadius(childMarkers, 50);
+        
+        var posCircle = L.circleMarker(cluster._latlng, circle_options_pos);
+        posCircle.setRadius(circleRadius['posRadius']);
+        map.addLayer(posCircle);
+        circles.push(posCircle);
+
+        var negCircle = L.circleMarker(cluster._latlng, circle_options_neg);
+        negCircle.setRadius(circleRadius['negRadius']);
+        map.addLayer(negCircle);
+        circles.push(negCircle);
+    };
+}
