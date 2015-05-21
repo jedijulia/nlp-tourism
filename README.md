@@ -22,5 +22,3 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 
 - POS tags
 - N-grams (bigrams)
-
-**PS: This is awesome!**
