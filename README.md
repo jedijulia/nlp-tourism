@@ -15,7 +15,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - top words from TripAdvisor with weights
 - top words from TripAdvisor using LDA with weights
 
-#####Classifiers and algorithms used in sentiment analysis:
+#####Classifier used in sentiment analysis:
 
 - Naive Bayes
 
