@@ -13,7 +13,7 @@ automatic identification and sentiment analysis of tourism-related tweets from t
 - top words
 - top words with weights
 - top words from TripAdvisor with weights
-- top words from TripAdvisor using LDA with weights
+- top words from TripAdvisor using Latent Dirichlet Allocation with weights
 
 #####Classifier used in sentiment analysis:
 
