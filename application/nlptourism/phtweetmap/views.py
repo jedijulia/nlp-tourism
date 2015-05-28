@@ -12,11 +12,13 @@ from sentiment_analyzer.sentiment_analyzer import train, feature_extractor
 class IndexView(TemplateView):
     template_name = 'phtweetmap/index.html'
 
-
+# view for retrieving tweets from the db (generated from streaming)
 class RetrieveTweetsView(View):
     def get(self, *args, **kwargs):
+        # retrieve tweets that have not yet been retrieved
         tweets = Tweet.objects.filter(retrieved=False)
         tweets_list = []
+        # store tweets in json format
         for tweet in tweets:
             tweet_json = {
                 'tweet_id': tweet.tweet_id,
@@ -31,22 +33,25 @@ class RetrieveTweetsView(View):
             tweet.save()
         return HttpResponse(json.dumps(tweets_list))
 
-
+# view for testing and manually verifying tweets
 class TestTweetsView(TemplateView):
     template_name = 'phtweetmap/test.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super(TestTweetsView, self).get_context_data(*args, **kwargs)
-        # train
+        
+        # retrieve tweets from db whose actual classifications have been set (already verified from previous tests)
         tweets_train_tourism = Tweet.objects.filter(classified=True, actual_classification='tourism')
         tweets_train_nontourism = Tweet.objects.filter(classified=True, actual_classification='nontourism')
+        
+        # train classifier using tourism and nontourism files and tweets from db
         train_result = train_db(tweets_train_tourism, tweets_train_nontourism)
         classifier = train_result['classifier']
-        context['accuracy'] = train_result['accuracy']
-        context['fscore'] = train_result['fscore']
-        # test
-        tweets = self.randomize_tweets('classifier/data/2015-03-06.happydata.txt', 1)
+
+        # retrieve random tweets from a file
+        tweets = self.randomize_tweets('classifier/data/2015-03-06.happydata.txt', 10)
         tweets_test = []
+
         for tweet in tweets:
             if not Tweet.objects.filter(tweet_id=tweet['id']) and tweet['coordinates']:
                 tweet_id = tweet['id']
@@ -55,7 +60,9 @@ class TestTweetsView(TemplateView):
                 lng = tweet['coordinates']['coordinates'][0]
                 text = tweet['text'].encode('utf-8')
                 if tweet_id and user and lat and lng and text:
+                    # classify tweet
                     classification = classifier.classify(feature_extractor_lda_tripadvisor_top_words_weights(text))
+                    # save tweet with classification (to be verified later)
                     tweet_obj = Tweet(tweet_id=tweet_id, user=user,
                                                      lat=lat, lng=lng, text=text, 
                                                      classification=classification)
@@ -64,6 +71,7 @@ class TestTweetsView(TemplateView):
         context['tweets'] = tweets_test
         return context
 
+    # obtain random tweets from a file
     def randomize_tweets(self, filename, lines):
         with open(filename, 'r') as tweets_file:
             tweets = []
@@ -78,56 +86,48 @@ class TestTweetsView(TemplateView):
                 i += 1
             return tweets
 
-
+# view for setting the actual classifications of tweets
 class SetClassificationView(View):
     def get(self, *args, **kwargs):
+        # retrieve tweet and given actual classification
         tweet = get_object_or_404(Tweet, pk=kwargs['pk'])
-        tweet.delete()
+        actual_classification = kwargs['actual_classification']
+
+        if actual_classification == 'tourism-act':
+            actual_classification = 'tourism'
+        else:
+            actual_classification = 'nontourism'
+        
+        # set actual classification and save tweet
+        tweet.actual_classification = actual_classification
+        tweet.classified = True
+        tweet.save()
         return HttpResponse('')
-    # def get(self, *args, **kwargs):
-    #     tweet = get_object_or_404(Tweet, pk=kwargs['pk'])
-    #     actual_classification = kwargs['actual_classification']
-    #     if actual_classification == 'tourism-act':
-    #         actual_classification = 'tourism'
-    #     else:
-    #         actual_classification = 'nontourism'
-    #     tweet.actual_classification = actual_classification
-    #     tweet.classified = True
-    #     tweet.save()
-    #     return HttpResponse('')
-    # def get(self, *args, **kwargs):
-    #     tweet = get_object_or_404(Tweet, pk=kwargs['pk'])
-    #     actual_classification = kwargs['actual_classification']
-    #     if actual_classification == 'tourism-act':
-    #         actual_classification = 'tourism'
-    #         tweet.actual_classification = actual_classification
-    #         tweet.classified = True
-    #         tweet.save()
-    #     else:
-    #         tweet.delete()
-    #     return HttpResponse('')
 
-
+# view for testing the entire system
 class TestSystemView(TemplateView):
     template_name = 'phtweetmap/test_system.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super(TestSystemView, self).get_context_data(*args, **kwargs)
-        # train
+        
+        # retrieve tweets from db whose actual classifications have been set (already verified from previous tests)
         tweets_train_tourism = Tweet.objects.filter(classified=True, actual_classification='tourism')
         tweets_train_nontourism = Tweet.objects.filter(classified=True, actual_classification='nontourism')
         
+        # train classifier using tourism and nontourism files and tweets from db
         train_result = train_db(tweets_train_tourism, tweets_train_nontourism)
         classifier = train_result['classifier']
         context['accuracy'] = train_result['accuracy']
         context['fscore'] = train_result['fscore']
 
+        # train sentiment classifier
         train_sentiment_result = train()
         sentiment_analyzer = train_sentiment_result['classifier']
         context['accuracy_sentiment'] = train_sentiment_result['accuracy']
         context['fscore_sentiment'] = train_sentiment_result['fscore']
 
-        # test
+        # retrieve tweets stored in files used for system evaluation (randomly chosen 100 tweets)
         tweets = []
         with open('classifier/system_tourism.txt', 'r') as tweets_file:
             for tweet in tweets_file:
@@ -137,6 +137,7 @@ class TestSystemView(TemplateView):
                 tweets.append(tweet)
         random.shuffle(tweets)
 
+        # classify tweets
         tweet_dict = {}
         for tweet in tweets:
             classification = classifier.classify(feature_extractor_lda_tripadvisor_top_words_weights(tweet))

@@ -1,3 +1,7 @@
+"""
+ Initially used to stream tweets and add them to the db when runserver is called.
+ This was then replaced with the celery task
+"""
 from django.apps import AppConfig
 from django.dispatch import receiver
 
@@ -13,7 +17,6 @@ class PhtweetmapAppConfig(AppConfig):
         # classif = train()
         @receiver(streamer.tweet_retrieved)
         def my_callback(sender, **kwargs):
-            print 'here!'
         #     tweet = kwargs['tweet']
         #     if tweet['coordinates']:
         #         tweet_id = tweet['id']
