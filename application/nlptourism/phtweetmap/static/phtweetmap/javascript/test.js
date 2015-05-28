@@ -1,3 +1,8 @@
+/*
+ for the testing and manual verification page
+*/
+
+// sets actual classification depending on button clicked
 $('button').on('click', function(e) {
     var li = $(this).closest('li');
     var pk = li.attr('data-pk');
@@ -17,7 +22,9 @@ $('button').on('click', function(e) {
     });
 });
 
+// compute for accuracy, precision, recall, f-score once results button is clicked
 $('#results').on('click', function(e) {
+    // retrieve values for the confusion matrix
     var truepos = $('li.tourism.tourism-act').length;
     var falsepos = $('li.tourism.nontourism-act').length;
     var trueneg = $('li.nontourism.nontourism-act').length;
@@ -28,6 +35,7 @@ $('#results').on('click', function(e) {
     var total = $('li').length;
     var accuracy = (truepos + trueneg) / total;
 
+    // compute preicision, recall, f-score
     if (truepos + falsepos != 0) {
         precision = truepos / (truepos + falsepos);
     }
@@ -38,6 +46,7 @@ $('#results').on('click', function(e) {
         var fscore = 2 * (precision * recall) / (precision + recall);
     }
 
+    // create divs to display confusion matrix values, accuracy, precision, recall, f-score
     var div = $('<div></div>');
     $('body').append(div);
     div.append('truepos: ' + truepos + '</br>');
