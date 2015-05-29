@@ -29,7 +29,7 @@ def retrieve_tweets():
                 # classify tweets (tourism or nontourism)
                 classification = classif.classify(feature_extractor_lda_tripadvisor_top_words_weights(text))
                 # for tourism-related tweets, classify as being positive or negative
-                if classification == 'tourism'
+                if classification == 'tourism':
                     sentiment = sentiment_analyzer.classify(feature_extractor(tweet))
                     print 'Label: {} || Tweet: {}'.format(sentiment, text)
                     # create Tweet object and save to db

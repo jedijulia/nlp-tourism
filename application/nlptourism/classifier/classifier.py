@@ -215,7 +215,8 @@ def process_data(tourism_file, nontourism_file):
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
-    return [training_set, test_set, datamixed, size, feature_set]
+    processed = [training_set, test_set, datamixed, size, feature_set]
+    return processed
 
 def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tweets):
     """
@@ -282,7 +283,8 @@ def get_fscore(classifier, data):
     # print 'Precision: ' + str(precision)
     # print 'Recall: ' + str(recall)
     # print 'F-score: ' + str(fscore)
-    return {'fscore': fscore, 'precision': precision, 'recall': recall}
+    performance = {'fscore': fscore, 'precision': precision, 'recall': recall}
+    return performance
 
 def cross_validate(classifier, training_set, test_set):
     """
@@ -323,7 +325,8 @@ def cross_validate(classifier, training_set, test_set):
     
     test_accuracy = classify.accuracy(best_classifier, test_set)
     accuracy = {'test_accuracy': test_accuracy, 'best_train_accuracy': best_train_accuracy}
-    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
+    to_return = {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
+    return to_return
 
 def train():
     """

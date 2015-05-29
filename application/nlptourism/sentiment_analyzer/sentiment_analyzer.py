@@ -102,7 +102,8 @@ def process_data(positive_file, negative_file):
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
-    return [feature_set, training_set, test_set, datamixed, size]
+    processed = [feature_set, training_set, test_set, datamixed, size]
+    return processed
 
 def get_fscore(classifier, data):
     """
@@ -139,7 +140,8 @@ def get_fscore(classifier, data):
     if (precision + recall) != 0:
         fscore = 2 * (precision * recall) / (precision + recall)
 
-    return {'fscore': fscore, 'precision': precision, 'recall': recall}
+    performance = {'fscore': fscore, 'precision': precision, 'recall': recall}
+    return performance
 
 def cross_validate(classifier, training_set, test_set):
     """
@@ -180,7 +182,8 @@ def cross_validate(classifier, training_set, test_set):
     test_accuracy = classify.accuracy(best_classifier, test_set)
     fscore = get_fscore(best_classifier, test_set)
     accuracy = {'test_accuracy': test_accuracy, 'best_train_accuracy': best_train_accuracy}
-    return {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
+    to_return = {'classifier': best_classifier, 'fscore': fscore, 'accuracy': accuracy}
+    return to_return
 
 def train():
     """
@@ -209,18 +212,18 @@ def train():
     classifier = result['classifier']
     fscore = result['fscore']
     accuracy = result['accuracy']['test_accuracy']
-    
-    return {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
+    to_return = {'classifier': classifier, 'fscore': fscore, 'accuracy': accuracy}
+    return to_return
 
 # display errors for error analysis
-errors = []
-ctr = 0
-for(tweet, label) in datamixed[size:]:
-    # predict labels
-    guess = classifier.classify(feature_extractor(tweet))
-    if guess != label:
-        errors.append((label, guess, tweet))
-    else:
-        ctr += 1
-for (label, guess, tweet) in sorted(errors):
-  print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
+# errors = []
+# ctr = 0
+# for(tweet, label) in datamixed[size:]:
+#     # predict labels
+#     guess = classifier.classify(feature_extractor(tweet))
+#     if guess != label:
+#         errors.append((label, guess, tweet))
+#     else:
+#         ctr += 1
+# for (label, guess, tweet) in sorted(errors):
+#   print('label=%-8s guess=%-8s tweet=%-30s' % (label, guess, tweet))
