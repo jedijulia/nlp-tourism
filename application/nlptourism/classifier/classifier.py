@@ -243,7 +243,8 @@ def process_data_db(tourism_file, nontourism_file, tourism_tweets, nontourism_tw
     size = int(len(feature_set) * 0.8)
     training_set = feature_set[:size]
     test_set = feature_set[size:]
-    return [training_set, test_set, datamixed, size, feature_set]
+    processed = [training_set, test_set, datamixed, size, feature_set]
+    return processed
 
 def get_fscore(classifier, data):
     """
