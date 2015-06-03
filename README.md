@@ -2,7 +2,7 @@ nlp-tourism
 ===========
 automatic identification and sentiment analysis of tourism-related tweets from the Philippines
 
-#####Tourism-related tweet identification:
+#####Tourism-related tweet classification:
 
 - Logistic Regression
 - Naive Bayes
