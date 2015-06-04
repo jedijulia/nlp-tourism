@@ -1,6 +1,6 @@
 nlp-tourism
 ===========
-automatic identification and sentiment analysis of tourism-related tweets from the Philippines
+automatic identification and sentiment analysis of tourism-related tweets
 
 #####Tourism-related tweet classification:
 
