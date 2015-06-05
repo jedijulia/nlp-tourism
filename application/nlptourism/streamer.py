@@ -1,9 +1,15 @@
+"""
+Streams tweets from the Philippines using Tweepy
+"""
+
 #!/usr/bin/env python
 import json
 import gzip
 import tweepy
 
 import django.dispatch
+
+
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -19,4 +25,4 @@ class StdOutListener(tweepy.StreamListener):
 
 def stream():
     stream = tweepy.streaming.Stream(auth, StdOutListener())
-    stream.filter(locations=[116.87,5.62,128.44,19.68], languages=['en'])
+    stream.filter(locations=[116.87,5.62,128.44,19.68])
